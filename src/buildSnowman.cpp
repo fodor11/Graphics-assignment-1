@@ -62,7 +62,6 @@ void Snowman::createDispList()
 
 void Snowman::build()
 {
-	
 	glCallList(m_dispList);
 	//cout << m_name.c_str() << " built\n";
 }

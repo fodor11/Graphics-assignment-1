@@ -204,6 +204,88 @@ void HeightMapLoader::determineColors()
 	}
 }
 
+void HeightMapLoader::createDisplayList()
+{
+	m_groundDispList = glGenLists(1);
+	glNewList(m_groundDispList, GL_COMPILE);
+
+	glDisable(GL_TEXTURE_2D);
+	glPushMatrix();
+	GLfloat ambient_and_diffuse[] = { 1, 1, 1, 1.0 };
+	GLfloat floor_specular[] = { 0, 0, 0, 1.0 };
+	glMaterialfv(GL_FRONT, GL_SPECULAR, floor_specular);
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
+
+	vec3f normal;
+	float height = 0.f;
+	vec3f color;
+	//float image_width = heightMap->getImageWidth() - 1;
+	//float image_height = heightMap->getImageHeight() - 1;
+	for (float i = 0; i < ((m_width-1)*m_scale); i += m_scale)
+	{
+		glBegin(GL_TRIANGLE_STRIP); //vertices: 012 213 234 435 ....
+		for (float j = 0; j < ((m_height-1)*m_scale); j += m_scale)
+		{
+			//glTexCoord2f(i/ image_width, j/ image_height);
+			//height = heightMap->getHeight((i + scale) / scale, j / scale);
+			color = getColor((i + m_scale) / m_scale, j / m_scale);
+			ambient_and_diffuse[0] = color.x();
+			ambient_and_diffuse[1] = color.y();
+			ambient_and_diffuse[2] = color.z();
+			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
+			normal = getNormal((i + m_scale) / m_scale, j / m_scale);
+			glNormal3f(normal.x(), normal.y(), normal.z());
+			glVertex3f(i + m_scale,
+				getHeight((i + m_scale) / m_scale, j / m_scale)*m_maxHeight,
+				j);
+
+			//glTexCoord2f(i / image_width, (j+scale) / image_height);
+			//height = heightMap->getHeight(i / scale, j / scale);
+			color = getColor(i / m_scale, j / m_scale);
+			ambient_and_diffuse[0] = color.x();
+			ambient_and_diffuse[1] = color.y();
+			ambient_and_diffuse[2] = color.z();
+			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
+			normal = getNormal(i / m_scale, j / m_scale);
+			glNormal3f(normal.x(), normal.y(), normal.z());
+			glVertex3f(i,
+				getHeight(i / m_scale, j / m_scale) * m_maxHeight,
+				j);
+
+			//glTexCoord2f((i+scale) / image_width, j / image_height);
+			//height = heightMap->getHeight((i + scale) / scale, j / scale);
+			color = getColor((i + m_scale) / m_scale, (j + m_scale) / m_scale);
+			ambient_and_diffuse[0] = color.x();
+			ambient_and_diffuse[1] = color.y();
+			ambient_and_diffuse[2] = color.z();
+			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
+			normal = getNormal((i + m_scale) / m_scale, (j + m_scale) / m_scale);
+			glNormal3f(normal.x(), normal.y(), normal.z());
+			glVertex3f(i + m_scale,
+				getHeight((i + m_scale) / m_scale, (j + m_scale) / m_scale) * m_maxHeight,
+				j + m_scale);
+
+			//glTexCoord2f((i + scale) / image_width, (j + scale) / image_height);
+			//height = heightMap->getHeight((i + scale) / scale, j / scale);
+			color = getColor(i / m_scale, (j + m_scale) / m_scale);
+			ambient_and_diffuse[0] = color.x();
+			ambient_and_diffuse[1] = color.y();
+			ambient_and_diffuse[2] = color.z();
+			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
+			normal = getNormal(i / m_scale, (j + m_scale) / m_scale);
+			glNormal3f(normal.x(), normal.y(), normal.z());
+			glVertex3f(i,
+				getHeight(i / m_scale, (j + m_scale) / m_scale) * m_maxHeight,
+				j + m_scale);
+		}
+		glEnd();
+	}
+
+	glPopMatrix();
+	glEnable(GL_TEXTURE_2D);
+	glEndList();
+}
+
 void HeightMapLoader::getMoistValues()
 {
 	m_fileName = "moisture.png";
@@ -344,6 +426,13 @@ HeightMapLoader::HeightMapLoader(char* fileName)
 	SOIL_free_image_data(m_image);
 	//color
 	determineColors();
+	//display list
+	createDisplayList();
+}
+
+void HeightMapLoader::drawTerrain()
+{
+	glCallList(m_groundDispList);
 }
 
 HeightMapLoader::~HeightMapLoader()
@@ -402,10 +491,5 @@ float HeightMapLoader::getScale()
 float HeightMapLoader::getMaxHeight()
 {
 	return m_maxHeight;
-}
-
-float HeightMapLoader::getTextureScale()
-{
-	return m_textureScale;
 }
 

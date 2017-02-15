@@ -2,6 +2,7 @@
 #include <SOIL/SOIL.h>
 #include <math.h>
 #include <memory.h>
+#include <string>
 #include "../include/buildSnowman.hpp"
 #include "../include/texture.hpp"
 
@@ -90,100 +91,48 @@ void drawSkybox()
 	glPopMatrix();
 }
 
-unsigned int groundTxtrNr = 0;
 HeightMapLoader *heightMap;
-void drawGround()
-{
-	glDisable(GL_TEXTURE_2D);
-	glPushMatrix();
-	GLfloat ambient_and_diffuse[] = { 1, 1, 1, 1.0 };
-	GLfloat floor_specular[] = { 0, 0, 0, 1.0 };
-	glMaterialfv(GL_FRONT, GL_SPECULAR, floor_specular);
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
-	//glBindTexture(GL_TEXTURE_2D, groundTxtrNr);
-	//float textureScale = heightMap->getTextureScale();
-
-	float scale = heightMap->getScale();
-	float maxHeight = heightMap->getMaxHeight();
-
-	vec3f normal;
-	float height = 0.f;
-	vec3f color;
-	float image_width = heightMap->getImageWidth() - 1;
-	float image_height = heightMap->getImageHeight() - 1;
-	for (float i = 0; i < (image_width*scale); i+=scale)
-	{
-		glBegin(GL_TRIANGLE_STRIP); //vertices: 012 213 234 435 ....
-		for (float j = 0; j < (image_height*scale); j+=scale)
-		{
-			//glTexCoord2f(i/ image_width, j/ image_height);
-			//height = heightMap->getHeight((i + scale) / scale, j / scale);
-			color = heightMap->getColor((i + scale) / scale, j / scale);
-			ambient_and_diffuse[0] = color.x();
-			ambient_and_diffuse[1] = color.y();
-			ambient_and_diffuse[2] = color.z();
-			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
-			normal = heightMap->getNormal((i + scale) / scale, j / scale);
-			glNormal3f(normal.x(), normal.y(), normal.z());
-			glVertex3f(i+ scale, 
-						heightMap->getHeight((i + scale) / scale, j / scale)*maxHeight,
-						j);
-
-			//glTexCoord2f(i / image_width, (j+scale) / image_height);
-			//height = heightMap->getHeight(i / scale, j / scale);
-			color = heightMap->getColor(i / scale, j / scale);
-			ambient_and_diffuse[0] = color.x();
-			ambient_and_diffuse[1] = color.y();
-			ambient_and_diffuse[2] = color.z();
-			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
-			normal = heightMap->getNormal(i / scale, j / scale);
-			glNormal3f(normal.x(), normal.y(), normal.z());
-			glVertex3f(i, 
-						heightMap->getHeight(i / scale, j / scale) * maxHeight, 
-						j);
-
-			//glTexCoord2f((i+scale) / image_width, j / image_height);
-			//height = heightMap->getHeight((i + scale) / scale, j / scale);
-			color = heightMap->getColor((i + scale) / scale, (j + scale) / scale);
-			ambient_and_diffuse[0] = color.x();
-			ambient_and_diffuse[1] = color.y();
-			ambient_and_diffuse[2] = color.z();
-			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
-			normal = heightMap->getNormal((i + scale) / scale, (j + scale) / scale);
-			glNormal3f(normal.x(), normal.y(), normal.z());
-			glVertex3f(i+ scale,
-					   heightMap->getHeight((i + scale) / scale, (j + scale) / scale) * maxHeight, 
-					   j+scale);
-
-			//glTexCoord2f((i + scale) / image_width, (j + scale) / image_height);
-			//height = heightMap->getHeight((i + scale) / scale, j / scale);
-			color = heightMap->getColor(i / scale, (j + scale) / scale);
-			ambient_and_diffuse[0] = color.x();
-			ambient_and_diffuse[1] = color.y();
-			ambient_and_diffuse[2] = color.z();
-			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
-			normal = heightMap->getNormal(i / scale, (j + scale) / scale);
-			glNormal3f(normal.x(), normal.y(), normal.z());
-			glVertex3f(i, 
-						heightMap->getHeight(i / scale, (j + scale) / scale) * maxHeight, 
-						j+scale);
-		}
-		glEnd();
-	}
-
-	glPopMatrix();
-	glEnable(GL_TEXTURE_2D);
-}
 
 int time = 0;
-void fpsMeter() 
+double fpsMeter() 
 {
 	int now = glutGet(GLUT_ELAPSED_TIME);
-	cout << 1/((now-time)/1000.0) << endl;
+	double fps = 1 / ((now - time) / 1000.0);
 	time = now;
+	return fps;
+}
+
+void printFPS()
+{
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix(); 
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glDisable(GL_LIGHTING);
+	glDisable(GL_TEXTURE_2D);
+
+	glColor3f(1.f, 0.f, 0.f);
+	glRasterPos2f(0.6f, -0.9f);
+	std::string fpsString = "fps: ";
+	fpsString += std::to_string(fpsMeter());
+	//cout << "called" << fpsString << fpsMeter() << endl;
+	for (int i = 0; i < strlen(fpsString.c_str()); i++)
+	{
+		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, fpsString[i]);
+	}
+
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_LIGHTING);
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix(); 
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();	
 }
 
 Snowman sm("Olaf");
+GLenum error;
 void display()
 {
 	//cout << "display" << endl;
@@ -191,6 +140,7 @@ void display()
 	
 	//reset transformations
 	glLoadIdentity();
+
 	//set horizon (+change from radius to angle)
 	glRotatef(horizonAngle*RadToAngle, 1, 0, 0);
 	//set camera height
@@ -204,7 +154,7 @@ void display()
 	
 	
 	//Draw ground
-	drawGround();
+	heightMap->drawTerrain();
 
 	drawSkybox();
 
@@ -226,9 +176,19 @@ void display()
 	//glLightfv(GL_LIGHT1, GL_POSITION, moon_position);
 	glLightfv(GL_LIGHT1, GL_POSITION, moon_position);
 	drawAxis();
+	printFPS();
+
+	//check errors	
+	error = glGetError();
+	while (error != GL_NO_ERROR)
+	{
+		std::cout << error << std::endl;
+		error = glGetError();
+	}
+	//std::cout << "error check done" << std::endl;
+
 	glFlush();
-	glutSwapBuffers();
-	fpsMeter();
+	glutSwapBuffers();	
 }
 
 void reshape(GLsizei width, GLsizei height)
@@ -304,21 +264,16 @@ void keyboard(unsigned char key, int x, int y)
 	case 'w':
 		cameraX += lx*speed;
 		cameraZ += lz*speed;
-		//cout << "angle: " << (angle)*(180 / PI) << endl;
 		break;
 	case 's':
 		cameraX -= lx*speed;
 		cameraZ -= lz*speed;
-		//cout << "angle: " << -(angle)*(180 / PI) << endl;
 		break;
 	case 'd':
-		//cout << "angle: " << (angle + (PI / 2))*(180 / PI) << endl;
 		cameraX += cos(angle + (PI / 2))*speed;
 		cameraZ += sin(angle + (PI / 2))*speed;
-		
 		break;
 	case 'a':
-		//cout << "angle: " << -(angle + (PI / 2))*(180 / PI) << endl;
 		cameraX -= cos(angle + (PI / 2))*speed;
 		cameraZ -= sin(angle + (PI / 2))*speed;
 		break;
@@ -332,8 +287,6 @@ void keyboard(unsigned char key, int x, int y)
 		exit(0);
 		break;
 	}
-	//cout << "x: " << cameraX << " z: " << cameraZ  <<" height: "<<heightMap->getHeight(cameraX,cameraZ)*20<< endl;
-	//glutPostRedisplay();
 }
 void specialFunctionKeys(int key, int x, int y)
 {
@@ -430,17 +383,6 @@ void initialize()
 */
 int main(int argc, char* argv[])
 {
-	//vector testing
-	//vec3f p1(0, 0, 0);
-	//vec3f p2(0, 1, 0);
-	//vec3f p3(1, 0, 0);
-	//vec3f v1 = p2 - p1;
-	//vec3f v2 = p3 - p1;
-	//vec3f normal = v2*v1;
-	//if (normal==vec3f(0,0,1))
-	//{
-	//	cout << string(v1).c_str() << " X " << string(v2).c_str() << " == " << string(normal).c_str() << endl;
-	//}
 	cout << "Init GLUT ..." << endl;
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

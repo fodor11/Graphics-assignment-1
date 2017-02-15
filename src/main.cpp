@@ -412,6 +412,5 @@ int main(int argc, char* argv[])
 
 	//TODO: 
 		//free heightmap
-
 	return 0;
 }

@@ -9,11 +9,13 @@ set(SOURCES 	src/main.cpp
 		src/model.cpp
 		src/objectLoader.cpp
 		src/texture.cpp
+		src/object.cpp
 
 		include/buildSnowman.hpp
 		include/model.hpp
 		include/objectLoader.hpp
-		include/texture.hpp)
+		include/texture.hpp
+		include/object.hpp)
 
 add_executable(House_in_the_Forest ${SOURCES})
 

@@ -145,6 +145,22 @@ vec3f & vec3f::operator/=(const float & rhs)
 	return *this;
 }
 
+float & vec3f::operator[](int index) 
+{
+	switch (index)
+	{
+		case 0:
+			return m_x;
+			break;
+		case 1:
+			return m_y;
+			break;
+		case 2:
+			return m_z;
+			break;
+	}
+}
+
 vec3f vec3f::multiplicate(vec3f & other)
 {
 	return vec3f(m_x*other.x(), m_y*other.y(), m_z*other.z());

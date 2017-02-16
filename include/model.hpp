@@ -52,6 +52,9 @@ public:
 	vec3f operator/(const float& value);
 	vec3f& operator/=(const float& rhs);
 
+	//get x,y,z with []
+	float& operator[](int index);
+
 	//multiplicating by members
 	vec3f multiplicate(vec3f& other);
 

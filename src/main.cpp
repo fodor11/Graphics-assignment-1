@@ -5,6 +5,7 @@
 #include <string>
 #include "../include/buildSnowman.hpp"
 #include "../include/texture.hpp"
+#include "..//include/objectLoader.hpp"
 
 #define PI 3.14159265
 #define RadToAngle 180/PI
@@ -354,6 +355,10 @@ void initialize()
 	heightMap = new HeightMapLoader("terrain6_256.png");
 	cameraX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
 	cameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
+
+	//Load 3D models
+	ObjectLoader* objLoader = new ObjectLoader();
+	objLoader->loadObjFile("pine1.obj");
 
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_NORMALIZE);

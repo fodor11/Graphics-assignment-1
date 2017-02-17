@@ -7,6 +7,30 @@
 
 class vec3f; 
 
+class FacePoint
+{
+	int m_v;	//0
+	int m_vt;	//1
+	int m_vn;	//2
+
+public:
+	FacePoint();
+	~FacePoint();
+	int& operator[](int index);
+	int & getV();
+	int & getVt();
+	int & getVn();
+};
+
+class Face
+{
+	FacePoint * m_facePoint;
+public:
+	Face();
+	~Face();
+	FacePoint& operator[](int index);
+};
+
 class ObjectLoader
 {
 	unsigned int m_num_v = 0;
@@ -18,6 +42,7 @@ class ObjectLoader
 	vec3f * m_vertices;
 	vec3f * m_vertNormals;
 	float * m_textureCoords;
+	Face * m_faces;
 	void readData();
 
 	ifstream m_file;

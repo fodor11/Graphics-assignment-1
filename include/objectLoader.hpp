@@ -29,6 +29,7 @@ public:
 	Face();
 	~Face();
 	FacePoint& operator[](int index);
+	Face& operator=(const Face& other);
 };
 
 class ObjectLoader
@@ -52,6 +53,10 @@ public:
 	~ObjectLoader();
 	void loadObjFile(char* filename);
 	vec3f* getVertices();
+	vec3f* getVertexNormals();
+	float* getTextureCoords();
+	Face* getFaces();
+	int getNumberOfFaces();
 };
 
 class Skybox

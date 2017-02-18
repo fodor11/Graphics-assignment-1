@@ -140,6 +140,26 @@ vec3f * ObjectLoader::getVertices()
 	return m_vertices;
 }
 
+vec3f * ObjectLoader::getVertexNormals()
+{
+	return m_vertNormals;
+}
+
+float * ObjectLoader::getTextureCoords()
+{
+	return m_textureCoords;
+}
+
+Face * ObjectLoader::getFaces()
+{
+	return m_faces;
+}
+
+int ObjectLoader::getNumberOfFaces()
+{
+	return m_num_f;
+}
+
 FacePoint::FacePoint()
 {
 	m_v = 0;
@@ -199,3 +219,18 @@ FacePoint & Face::operator[](int index)
 		return m_facePoint[index];
 	}
 }
+
+Face & Face::operator=(const Face & other)
+{
+	delete[] m_facePoint;
+	m_facePoint = new FacePoint[3];
+	for (int i = 0; i < 3; i++)
+	{	
+		for (int j = 0; j < 3; j++)
+		{
+			m_facePoint[i][j] = other.m_facePoint[i][j];
+		}
+	}
+	return *this;
+}
+								

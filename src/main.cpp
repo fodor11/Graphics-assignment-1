@@ -5,7 +5,7 @@
 #include <string>
 #include "../include/buildSnowman.hpp"
 #include "../include/texture.hpp"
-#include "..//include/objectLoader.hpp"
+#include "..//include/object.hpp"
 
 #define PI 3.14159265
 #define RadToAngle 180/PI
@@ -93,6 +93,7 @@ void drawSkybox()
 }
 
 HeightMapLoader *heightMap;
+Tree *tree1;
 
 int time = 0;
 double fpsMeter() 
@@ -161,17 +162,21 @@ void display()
 
 	int midMapX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
 	int midMapY = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
-	//draw snowmen
-	for (int i = midMapX -30; i < midMapX + 30; i+=10)
+	//draw Trees
+	for (int i = midMapX -30; i < midMapX + 30; i+=6)
 	{
-		for (int j = midMapY -30; j < midMapY + 30; j+=10)
+		for (int j = midMapY -30; j < midMapY + 30; j+=6)
 		{
 			glPushMatrix();
 			glTranslatef(i, heightMap->getHeight(i / scale, j / scale) * maxHeight, j);
-			sm.build();
+			tree1->drawTree();
 			glPopMatrix();
 		}
 	}
+	//glPushMatrix();
+	//glTranslatef(midMapX, heightMap->getHeight(midMapX / scale, midMapX / scale) * maxHeight, midMapX);
+	//tree1->drawTree();
+	//glPopMatrix();
 
 	//reset position of the lightsource
 	//glLightfv(GL_LIGHT1, GL_POSITION, moon_position);
@@ -357,13 +362,12 @@ void initialize()
 	cameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
 
 	//Load 3D models
-	ObjectLoader* objLoader = new ObjectLoader();
-	objLoader->loadObjFile("pine1.obj");
+	tree1 = new Tree();
 
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_AUTO_NORMAL);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	//Light model setup

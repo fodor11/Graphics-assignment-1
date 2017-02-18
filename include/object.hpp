@@ -1,9 +1,10 @@
 #pragma once
 #include "model.hpp"
+#include "objectLoader.hpp"
 
 class Tree
 {
-	GLuint dispList;
+	GLuint m_dispList;
 	void loadDispList();
 
 	GLuint leafTxtr;

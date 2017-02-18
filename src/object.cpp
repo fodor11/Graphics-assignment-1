@@ -17,7 +17,6 @@ void Tree::loadDispList()
 	m_dispList = glGenLists(1);
 	glNewList(m_dispList, GL_COMPILE);
 
-	//temp
 	glDisable(GL_TEXTURE_2D);
 	GLfloat mat_specular[] = { 0.5,0.5,0.5,1.0 };
 	GLfloat ambient_and_diffuse[] = { 0.5f, 0.5f, 0.5f, 1.0 };

@@ -18,6 +18,7 @@ private:
 
 public:
 	TextureLoader();
+	~TextureLoader();
 	void loadMipMappedTexture(char* filename);
 	void loadTexture(char* filename);
 	unsigned int textureID();

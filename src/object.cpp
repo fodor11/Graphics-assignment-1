@@ -1,14 +1,37 @@
 #include "../include/object.hpp"
 
+void Tree::loadTextures(string * fileNames, int num_of_files)
+{
+	m_textures = new unsigned int[num_of_files];
+	TextureLoader *txtrLoader = new TextureLoader();
+	for (int i = 0; i < num_of_files; i++)
+	{
+		char* fileName = new char[fileNames[i].length()];
+		strcpy(fileName, fileNames[i].c_str());
+		txtrLoader->loadMipMappedTexture(fileName);
+		m_textures[i] = txtrLoader->textureID();
+		//delete[] fileName;
+	}
+	txtrLoader->~TextureLoader();
+}
+
 void Tree::loadDispList()
 {
 	ObjectLoader* objLoader = new ObjectLoader();
 	objLoader->loadObjFile("pine1.obj");
+
 	vec3f * vertices = objLoader->getVertices();
 	vec3f * vertNormals = objLoader->getVertexNormals();
 	float * textureCoords = objLoader->getTextureCoords();
-	Face * faces = objLoader->getFaces();
 
+	Face ** faceLists = objLoader->getFaceLists();
+	int * faceListsLengths = objLoader->getFaceListLengths();
+	int num_facelists = objLoader->getNumberOfFacelists();
+
+	loadTextures(objLoader->getTextureFileNames(), num_facelists);
+
+	//temporary
+	Face* curr_faceList;
 	Face face;
 	int v_index, vt_index, vn_index;
 	vec3f vertex, vertexNormal;
@@ -16,41 +39,41 @@ void Tree::loadDispList()
 
 	m_dispList = glGenLists(1);
 	glNewList(m_dispList, GL_COMPILE);
-
-	glDisable(GL_TEXTURE_2D);
-	GLfloat mat_specular[] = { 0.5,0.5,0.5,1.0 };
-	GLfloat ambient_and_diffuse[] = { 0.5f, 0.5f, 0.5f, 1.0 };
-	GLfloat ambient[] = { 0.5f, 0.5f, 0.5f, 1 };
-	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, ambient_and_diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-
-	glRotatef(-90, 1, 0, 0);
-	float scale = 0.05;
-	glScalef(scale, scale, scale);
-	for (int i = 0; i < objLoader->getNumberOfFaces(); i++)
-	{
-		face = faces[i];
-		glBegin(GL_TRIANGLES);
-		for (int j = 0; j < 3; j++)
-		{
-			//get indexes
-			v_index = face[j][0]-1;
-			vt_index = face[j][1]-1;
-			vn_index = face[j][2]-1;
-
-			//get values
-			vertex = vertices[v_index];
-			vertexNormal = vertNormals[vn_index];
-			u = textureCoords[vt_index, 0];
-			v = textureCoords[vt_index, 1];
-
-			glNormal3f(vertexNormal[0], vertexNormal[1], vertexNormal[2]);
-			glVertex3f(vertex[0], vertex[1], vertex[2]);
-		}
-		glEnd();
-	}
+	glPushMatrix();
 	glEnable(GL_TEXTURE_2D);
+		glRotatef(-90, 1, 0, 0);
+		float scale = 0.05;
+		glScalef(scale, scale, scale);
+		for (int k = 0; k < num_facelists; k++)
+		{
+			glBindTexture(GL_TEXTURE_2D, m_textures[k]);
+			cout << "bound texture: " << m_textures[k] << endl;
+			curr_faceList = faceLists[k];
+			for (int i = 0; i < faceListsLengths[k]; i++)
+			{
+				face = curr_faceList[i];
+				glBegin(GL_TRIANGLES);
+				for (int j = 0; j < 3; j++)
+				{
+					//get indexes
+					v_index = face[j][0] - 1;
+					vt_index = face[j][1] - 1;
+					vn_index = face[j][2] - 1;
+
+					//get values
+					vertex = vertices[v_index];
+					vertexNormal = vertNormals[vn_index];
+					u = textureCoords[vt_index*2 + 0];
+					v = textureCoords[vt_index*2 + 1];
+
+					glTexCoord2f(u, 1 - v);
+					glNormal3f(vertexNormal[0], vertexNormal[1], vertexNormal[2]);
+					glVertex3f(vertex[0], vertex[1], vertex[2]);
+				}
+				glEnd();
+			}
+		}	
+	glPopMatrix();
 	glEndList();
 
 	objLoader->~ObjectLoader();
@@ -64,6 +87,11 @@ Tree::Tree()
 {
 	loadTextures();
 	loadDispList();
+}
+
+Tree::~Tree()
+{
+	delete[] m_textures;
 }
 
 void Tree::drawTree()

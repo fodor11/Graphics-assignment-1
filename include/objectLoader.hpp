@@ -37,14 +37,27 @@ class ObjectLoader
 	unsigned int m_num_v = 0;
 	unsigned int m_num_vt = 0;
 	unsigned int m_num_vn = 0;
-	unsigned int m_num_f = 0;
+	unsigned int n_materials = 0;
 	void countTokens();
+
+	unsigned int m_current_faceList = 0;
+	int getFaceListIndex(string textureAlias);
 
 	vec3f * m_vertices;
 	vec3f * m_vertNormals;
 	float * m_textureCoords;
-	Face * m_faces;
+	//Pointers to Face* objects (separated by textures)
+	Face ** m_faceLists;
+	//the lengths of the facelists in order
+	int * m_faceList_length;
 	void readData();
+
+	//read the corresponding .mtl, extracts texture aliases and filenames, 
+	//initializes m_faceLists and m_faceList_length
+	void readMtl(string filename);
+	//string array: [Txtr Alias][Txtr Filename]
+	//the first txtr belongs to the first faceList etc...
+	string** m_texture_alias;
 
 	ifstream m_file;
 
@@ -55,8 +68,11 @@ public:
 	vec3f* getVertices();
 	vec3f* getVertexNormals();
 	float* getTextureCoords();
-	Face* getFaces();
-	int getNumberOfFaces();
+
+	Face** getFaceLists();
+	int* getFaceListLengths();
+	int getNumberOfFacelists();
+	string* getTextureFileNames();
 };
 
 class Skybox

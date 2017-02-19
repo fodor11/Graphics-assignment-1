@@ -5,19 +5,90 @@ void Skybox::drawSky(char * fileName)
 
 }
 
+//read .mtl
+void ObjectLoader::readMtl(string filename)
+{
+	cout << "Parsing .mtl...\t";
+	ifstream mtlFile;
+	mtlFile.open(filename);
+	n_materials = 0;
+	string line;
+	//counting
+	if (mtlFile.is_open())
+	{
+		while (getline(mtlFile, line))
+		{
+			if (line.compare(0, 7, "newmtl ") == 0)
+			{
+				n_materials++;
+			}
+		}
+	}
+	m_texture_alias = new string*[n_materials];
+
+	//parsing
+	mtlFile.clear();
+	mtlFile.seekg(0, ios::beg);
+	n_materials = 0;
+
+	if (mtlFile.is_open())
+	{
+		while (getline(mtlFile, line))
+		{
+			if (line.compare(0, 7, "newmtl ") == 0)
+			{
+				m_texture_alias[n_materials] = new string[2];
+				m_texture_alias[n_materials][0] = line.substr(7);
+			}
+			else if (line.compare(0, 7, "map_Kd ") == 0)
+			{
+				m_texture_alias[n_materials][1] = line.substr(7);
+				n_materials++;
+			}
+		}
+		//cout << m_texture_alias[0][0] << ": " << m_texture_alias[0][1] << endl;
+		//cout << m_texture_alias[1][0] << ": " << m_texture_alias[1][1] << endl;
+	}
+	
+	mtlFile.close();
+	m_faceLists = new Face*[n_materials];
+	m_faceList_length = new int[n_materials];
+	cout << " Done." << endl;
+}
+
+int ObjectLoader::getFaceListIndex(string textureAlias)
+{
+	for (int i = 0; i < n_materials; i++)
+	{
+		if (m_texture_alias[i][0].compare(textureAlias) == 0)
+		{
+			return i;
+		}
+	}
+}
+
 void ObjectLoader::countTokens()
 {
 	m_num_v = 0;
 	m_num_vt = 0;
 	m_num_vn = 0;
-	m_num_f = 0;
+	m_current_faceList = 0;
+	
 	string line;
 	if (m_file.is_open())
 	{
 		cout << "Counting tokens in .obj file" << endl;
 		while (getline(m_file, line))
 		{
-			if (line.compare(0,2,"v ")==0)
+			if (line.compare(0, 7, "mtllib ") == 0)
+			{
+				readMtl(line.substr(7));
+				for (int i = 0; i < n_materials; i++)
+				{
+					m_faceList_length[i] = 0;
+				}
+			}
+			else if (line.compare(0,2,"v ")==0)
 			{
 				m_num_v++;
 			}
@@ -29,17 +100,28 @@ void ObjectLoader::countTokens()
 			{
 				m_num_vn++;
 			}
+			else if (line.compare(0, 7, "usemtl ") == 0)
+			{
+				m_current_faceList = getFaceListIndex(line.substr(7));
+			}
 			else if (line.compare(0, 2, "f ") == 0)
 			{
-				m_num_f++;
+				m_faceList_length[m_current_faceList]++;
 			}
 		}
 	}
-	cout << "v: " << m_num_v << "   vt: " << m_num_vt << "   vn: " << m_num_vn << "   f: " << m_num_f << endl;
+	cout << "v: " << m_num_v << "   vt: " << m_num_vt << "   vn: " << m_num_vn << endl;
+	for (int i = 0; i < n_materials; i++)
+	{
+		cout << "facelist[" << i << "]: " << m_faceList_length[i] << endl;
+	}
 	m_vertices = new vec3f[m_num_v];
 	m_vertNormals = new vec3f[m_num_vn];
-	m_textureCoords = new float[m_num_vt, 2];
-	m_faces = new Face[m_num_f];
+	m_textureCoords = new float[m_num_vt*2];
+	for (int i = 0; i < n_materials; i++)
+	{
+		m_faceLists[i] = new Face[m_faceList_length[i]];
+	}
 }
 
 void parse3floats(vec3f& vector, string line)
@@ -81,7 +163,11 @@ void ObjectLoader::readData()
 	m_num_v = 0;
 	m_num_vt = 0;
 	m_num_vn = 0;
-	m_num_f = 0;
+	m_current_faceList = 0;
+	for (int i = 0; i < n_materials; i++)
+	{
+		m_faceList_length[i] = 0;
+	}
 
 	string line;
 	if (m_file.is_open())
@@ -96,7 +182,7 @@ void ObjectLoader::readData()
 			}
 			else if (line.compare(0, 2, "vt") == 0)
 			{
-				parse2floats(&m_textureCoords[m_num_vt,0], line);
+				parse2floats(&m_textureCoords[m_num_vt*2], line);
 				m_num_vt++;
 			}
 			else if (line.compare(0, 2, "vn") == 0)
@@ -104,10 +190,14 @@ void ObjectLoader::readData()
 				parse3floats(m_vertNormals[m_num_vn], line);
 				m_num_vn++;
 			}
+			else if (line.compare(0, 7, "usemtl ") == 0)
+			{
+				m_current_faceList = getFaceListIndex(line.substr(7));
+			}
 			else if (line.compare(0, 2, "f ") == 0)
 			{
-				parseFace(m_faces[m_num_f], line);
-				m_num_f++;
+				parseFace(m_faceLists[m_current_faceList][m_faceList_length[m_current_faceList]], line);
+				m_faceList_length[m_current_faceList]++;
 			}
 		}
 	}
@@ -119,10 +209,18 @@ ObjectLoader::ObjectLoader()
 
 ObjectLoader::~ObjectLoader()
 {
+	cout << "~ObjectLoader():" << endl;
 	delete[] m_vertices;
 	delete[] m_textureCoords;
 	delete[] m_vertNormals;
-	delete[] m_faces;
+	delete[] m_texture_alias;
+	for (int i = 0; i < n_materials; i++)
+	{
+		delete[] m_faceLists[i];
+		//delete[] m_texture_alias[i];
+	}
+	delete[] m_faceLists;
+	//delete[] m_texture_alias;
 }
 
 void ObjectLoader::loadObjFile(char * filename)
@@ -150,14 +248,29 @@ float * ObjectLoader::getTextureCoords()
 	return m_textureCoords;
 }
 
-Face * ObjectLoader::getFaces()
+Face ** ObjectLoader::getFaceLists()
 {
-	return m_faces;
+	return m_faceLists;
 }
 
-int ObjectLoader::getNumberOfFaces()
+int * ObjectLoader::getFaceListLengths()
 {
-	return m_num_f;
+	return m_faceList_length;
+}
+
+int ObjectLoader::getNumberOfFacelists()
+{
+	return n_materials;
+}
+
+string * ObjectLoader::getTextureFileNames()
+{
+	string* ret = new string[n_materials];
+	for (int i = 0; i < n_materials; i++)
+	{
+		ret[i] = m_texture_alias[i][1];
+	}
+	return ret;
 }
 
 FacePoint::FacePoint()

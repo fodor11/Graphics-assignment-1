@@ -4,6 +4,8 @@
 
 class Tree
 {
+	unsigned int * m_textures;
+	void loadTextures(string* fileNames, int num_of_files);
 	GLuint m_dispList;
 	void loadDispList();
 

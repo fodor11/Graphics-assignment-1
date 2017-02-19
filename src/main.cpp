@@ -169,14 +169,14 @@ void display()
 		{
 			glPushMatrix();
 			glTranslatef(i, heightMap->getHeight(i / scale, j / scale) * maxHeight, j);
-			tree1->drawTree();
+			//tree1->drawTree();
 			glPopMatrix();
 		}
 	}
-	//glPushMatrix();
-	//glTranslatef(midMapX, heightMap->getHeight(midMapX / scale, midMapX / scale) * maxHeight, midMapX);
-	//tree1->drawTree();
-	//glPopMatrix();
+	glPushMatrix();
+	glTranslatef(midMapX, heightMap->getHeight(midMapX / scale, midMapX / scale) * maxHeight, midMapX);
+	tree1->drawTree();
+	glPopMatrix();
 
 	//reset position of the lightsource
 	//glLightfv(GL_LIGHT1, GL_POSITION, moon_position);
@@ -363,6 +363,9 @@ void initialize()
 
 	//Load 3D models
 	tree1 = new Tree();
+	//ObjectLoader* objLoader = new ObjectLoader();
+	//objLoader->loadObjFile("pine1.obj");
+	//objLoader->~ObjectLoader();
 
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_NORMALIZE);
@@ -392,6 +395,34 @@ void initialize()
 */
 int main(int argc, char* argv[])
 {
+	//array testing
+	//int *a = new int[3, 2];
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	for (int j = 0; j < 2; j++)
+	//	{
+	//		a[i, j] = i * 2 + j;
+	//		cout << a[i, j] << endl;
+	//	}
+	//}
+	//cout << "second out:" << endl;
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	for (int j = 0; j < 2; j++)
+	//	{
+	//		cout << a[i, j] << endl;
+	//	}
+	//}
+	//cout << "third out:" << endl;
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	for (int j = 0; j < 2; j++)
+	//	{
+	//		cout << i * 2 + j<<": ";
+	//		cout << a[i*2+j] << endl;
+	//	}
+	//}
+
 	cout << "Init GLUT ..." << endl;
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

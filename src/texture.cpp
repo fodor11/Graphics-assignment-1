@@ -59,6 +59,12 @@ TextureLoader::TextureLoader()
 {
 }
 
+TextureLoader::~TextureLoader()
+{
+	//delete m_fileName; -> crashes
+	//was m_pixel released by SOIL_free_image_data?
+}
+
 void TextureLoader::loadMipMappedTexture(char * filename)
 {
 	m_fileName = filename;

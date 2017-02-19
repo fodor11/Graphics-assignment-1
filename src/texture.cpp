@@ -75,7 +75,7 @@ void TextureLoader::loadMipMappedTexture(char * filename)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	unsigned char* imageData;
-	imageData = SOIL_load_image(m_fileName, &m_width, &m_height, 0, SOIL_LOAD_RGB);
+	imageData = SOIL_load_image(m_fileName, &m_width, &m_height, 0, SOIL_LOAD_RGBA);
 	if (imageData==NULL)
 	{
 		std::cout << m_fileName << " could not be loaded!" << std::endl;
@@ -83,23 +83,14 @@ void TextureLoader::loadMipMappedTexture(char * filename)
 	else
 		std::cout << m_fileName << " loaded!" << std::endl;
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //when the shown picture is streched
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); //when the shown picture is smaller
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //coordinate outside the range of 0 to 1 (s,t = x,y)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	
-	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, imageData);
 
-	//GLenum error;
-	//error = glGetError();
-	//while (error != GL_NO_ERROR)
-	//{
-	//std::cout << error << std::endl;
-	//error = glGetError();
-	//}
-	//std::cout << "error check done" << std::endl;
+	gluBuild2DMipmaps(GL_TEXTURE_2D, 4, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 	SOIL_free_image_data(imageData);
 }
 

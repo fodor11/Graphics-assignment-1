@@ -371,6 +371,9 @@ void initialize()
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_AUTO_NORMAL);
 	//glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	//Light model setup

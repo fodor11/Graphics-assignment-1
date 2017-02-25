@@ -1,18 +1,17 @@
 #include "../include/object.hpp"
 
-void Tree::loadTextures(string * fileNames, int num_of_files)
+GLuint Tree::loadTexture(string fileName)
 {
-	m_textures = new unsigned int[num_of_files];
 	TextureLoader *txtrLoader = new TextureLoader();
-	for (int i = 0; i < num_of_files; i++)
-	{
-		char* fileName = new char[fileNames[i].length()];
-		strcpy(fileName, fileNames[i].c_str());
-		txtrLoader->loadMipMappedTexture(fileName);
-		m_textures[i] = txtrLoader->textureID();
-		//delete[] fileName;
-	}
+	txtrLoader->loadMipMappedTexture(fileName);
+	m_textures.push_back(txtrLoader->textureID());
 	txtrLoader->~TextureLoader();
+	return m_textures.back();
+}
+
+void Tree::drawFace(Face & face) const
+{
+
 }
 
 void Tree::loadDispList()
@@ -20,18 +19,12 @@ void Tree::loadDispList()
 	ObjectLoader* objLoader = new ObjectLoader();
 	objLoader->loadObjFile("pine1.obj");
 
-	vec3f * vertices = objLoader->getVertices();
-	vec3f * vertNormals = objLoader->getVertexNormals();
-	float * textureCoords = objLoader->getTextureCoords();
-
-	Face ** faceLists = objLoader->getFaceLists();
-	int * faceListsLengths = objLoader->getFaceListLengths();
-	int num_facelists = objLoader->getNumberOfFacelists();
-
-	loadTextures(objLoader->getTextureFileNames(), num_facelists);
+	std::vector<vec3f> vertices = objLoader->getVertices();
+	std::vector<vec3f> vertNormals = objLoader->getVertexNormals();
+	std::vector<std::pair<float, float>> textureCoords = objLoader->getTextureCoords();
+	std::map<std::string, std::vector<Face>> faceLists = objLoader->getFaceLists();
 
 	//temporary
-	Face* curr_faceList;
 	Face face;
 	int v_index, vt_index, vn_index;
 	vec3f vertex, vertexNormal;
@@ -44,12 +37,13 @@ void Tree::loadDispList()
 		glRotatef(-90, 1, 0, 0);
 		float scale = 0.05;
 		glScalef(scale, scale, scale);
-		for (int k = 0; k < num_facelists; k++)
+		for (auto map = faceLists.begin(); map != faceLists.end(); map++)
 		{
-			glBindTexture(GL_TEXTURE_2D, m_textures[k]);
-			cout << "bound texture: " << m_textures[k] << endl;
-			curr_faceList = faceLists[k];
-			for (int i = 0; i < faceListsLengths[k]; i++)
+			GLuint textureId = loadTexture(map->first);
+			glBindTexture(GL_TEXTURE_2D, textureId);
+			std::cout << "bound texture: " << map->first << endl;
+			std::vector<Face> curr_faceList = map->second;
+			for (int i = 0; i < curr_faceList.size(); i++)
 			{
 				face = curr_faceList[i];
 				glBegin(GL_TRIANGLES);
@@ -63,8 +57,8 @@ void Tree::loadDispList()
 					//get values
 					vertex = vertices[v_index];
 					vertexNormal = vertNormals[vn_index];
-					u = textureCoords[vt_index*2 + 0];
-					v = textureCoords[vt_index*2 + 1];
+					u = textureCoords[vt_index].first;
+					v = textureCoords[vt_index].second;
 
 					glTexCoord2f(u, 1 - v);
 					glNormal3f(vertexNormal[0], vertexNormal[1], vertexNormal[2]);
@@ -79,19 +73,14 @@ void Tree::loadDispList()
 	objLoader->~ObjectLoader();
 }
 
-void Tree::loadTextures()
-{
-}
 
 Tree::Tree()
 {
-	loadTextures();
 	loadDispList();
 }
 
 Tree::~Tree()
 {
-	delete[] m_textures;
 }
 
 void Tree::drawTree()

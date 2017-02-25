@@ -4,43 +4,43 @@
 /*
 * Texture loader
 */
-void TextureLoader::loadTexture(char* filename)
+void TextureLoader::loadTexture(std::string filename)
 {
 	m_fileName = filename;
-	m_textureNr = 0;
-	m_textureNr = SOIL_load_OGL_texture(m_fileName, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
-	if (m_textureNr == 0)	
+	m_textureId = 0;
+	m_textureId = SOIL_load_OGL_texture(m_fileName.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
+	if (m_textureId == 0)
 	{
-		std::cout << m_fileName << " could not be loaded!" << std::endl;
+		std::cout << m_fileName.c_str() << " could not be loaded!" << std::endl;
 	}
 	else
-		std::cout << m_fileName << " loaded!" << std::endl;
+		std::cout << m_fileName.c_str() << " loaded!" << std::endl;
 
-	glBindTexture(GL_TEXTURE_2D, m_textureNr);
+	glBindTexture(GL_TEXTURE_2D, m_textureId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //when the shown picture is streched
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //when the shown picture is smaller
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //coordinate outside the range of 0 to 1 (s,t = x,y)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
-void TextureLoader::loadImage(char * filename)
+void TextureLoader::loadImage(std::string filename)
 {
 	m_fileName = filename;
-	m_pixel = (Pixel*)SOIL_load_image(m_fileName, &m_width, &m_height, 0, SOIL_LOAD_RGB);
-	if (m_pixel == NULL)
+	m_pixel = (Pixel*)SOIL_load_image(m_fileName.c_str(), &m_width, &m_height, 0, SOIL_LOAD_RGB);
+	if (m_pixel == nullptr)
 	{
-		std::cout << m_fileName << " could not be loaded!" << std::endl;
+		std::cout << m_fileName.c_str() << " could not be loaded!" << std::endl;
 	}
 	else
-		std::cout << m_fileName << " loaded!" << std::endl;
+		std::cout << m_fileName.c_str() << " loaded!" << std::endl;
 }
 
 vec3f TextureLoader::getPixelColor(float moisture, float height)
 {
-	if (m_pixel != NULL && moisture >= 0 && height >= 0 && moisture <= 1.00001 && height <= 1.00001)
+	if (m_pixel != nullptr && moisture >= 0 && height >= 0 && moisture <= 1.00001 && height <= 1.00001)
 	{
 		int x = m_width*moisture;
-		int y = m_height*(1-height);
+		int y = m_height*(1 - height);
 		int index = y*m_width + x;
 		float r = m_pixel[index][0];
 		float g = m_pixel[index][1];
@@ -50,41 +50,35 @@ vec3f TextureLoader::getPixelColor(float moisture, float height)
 	else return vec3f(1, 0, 0);
 }
 
-unsigned int TextureLoader::textureID()
+unsigned int TextureLoader::textureID() const
 {
-	return m_textureNr;
+	return m_textureId;
 }
 
-TextureLoader::TextureLoader()
-{
-}
+TextureLoader::TextureLoader() {}
 
-TextureLoader::~TextureLoader()
-{
-	//delete m_fileName; -> crashes
-	//was m_pixel released by SOIL_free_image_data?
-}
+TextureLoader::~TextureLoader() {}
 
-void TextureLoader::loadMipMappedTexture(char * filename)
+void TextureLoader::loadMipMappedTexture(std::string filename)
 {
 	m_fileName = filename;
-	//get the texture id
-	glGenTextures(1, &m_textureNr);
-	glBindTexture(GL_TEXTURE_2D, m_textureNr);
+
+	glGenTextures(1, &m_textureId);
+	glBindTexture(GL_TEXTURE_2D, m_textureId);
 	glEnable(GL_TEXTURE_2D);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	unsigned char* imageData;
-	imageData = SOIL_load_image(m_fileName, &m_width, &m_height, 0, SOIL_LOAD_RGBA);
-	if (imageData==NULL)
+	imageData = SOIL_load_image(m_fileName.c_str(), &m_width, &m_height, 0, SOIL_LOAD_RGBA);
+	if (imageData == nullptr)
 	{
-		std::cout << m_fileName << " could not be loaded!" << std::endl;
+		std::cout << m_fileName.c_str() << " could not be loaded!" << std::endl;
 	}
 	else
-		std::cout << m_fileName << " loaded!" << std::endl;
+		std::cout << m_fileName.c_str() << " loaded!" << std::endl;
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-	
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //when the shown picture is streched
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); //when the shown picture is smaller
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); //coordinate outside the range of 0 to 1 (s,t = x,y)
@@ -93,400 +87,3 @@ void TextureLoader::loadMipMappedTexture(char * filename)
 	gluBuild2DMipmaps(GL_TEXTURE_2D, 4, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 	SOIL_free_image_data(imageData);
 }
-
-/*
-* Height map loader
-*/
-void HeightMapLoader::getHeightValues()
-{
-	m_heightValues = new float[m_width*m_height];
-	
-	for (int i = 0; i < m_width*m_height; i++)
-	{
-		m_heightValues[i] = pow((float)m_image[i]/255.0f,2);
-		if (m_heightValues[i]>m_highestPoint)
-		{
-			m_highestPoint = m_heightValues[i];
-		}
-		else if (m_heightValues[i]<m_lowestPoint)
-		{
-			m_lowestPoint = m_heightValues[i];
-		}
-	}
-	//std::cout << m_width << "x" << m_height << std::endl;
-	//std::cout << getHeight(150, 150) << std::endl;
-	//std::cout << getHeight(m_width-1, m_height-1) << "==" << m_heightValues[(m_height-1)*(m_width - 1) +(m_width - 1)] << std::endl;
-}
-
-void HeightMapLoader::determineColors()
-{
-	float lightness;
-	m_colors = new vec3f[m_width*m_height];
-
-	//vec3f green(0.420f, 0.557f, 0.137f);
-	//vec3f darkGreen(0.333f, 0.420f, 0.184f);
-	//vec3f grey(0.212f, 0.212f, 0.212f);
-	//vec3f darkGrey(0.152f, 0.152f, 0.152f);
-	//vec3f white(0.5f, 0.5f, 0.4f);
-	//vec3f notSoWhite(0.35f, 0.35f, 0.3f);
-
-	TextureLoader *biome = new TextureLoader();
-	biome->loadImage("biome-smooth.png");
-
-	for (int i = 0; i < m_width*m_height; i++)
-	{
-		lightness = (m_heightValues[i] + 0.05)*2;
-		if (lightness > 0.5)
-		{
-			lightness = 0.5;
-		}
-		float realtiveHeight = (m_heightValues[i] - m_lowestPoint) / (m_highestPoint - m_lowestPoint);
-		float relativeMoisture = (m_moisture[i] - m_dryestPoint) / (m_wettestPoint - m_dryestPoint);
-		m_colors[i] = biome->getPixelColor(relativeMoisture, realtiveHeight)*lightness;
-		//lightness = (m_heightValues[i] + 0.05) * 2;
-		//if (m_heightValues[i] < 0.09) //Green grass
-		//{
-		//	if (m_moisture[i] > 0.7)
-		//	{
-		//		m_colors[i] = darkGreen * lightness;
-		//	}
-		//	else
-		//		m_colors[i] = green * lightness;
-		//}
-		//else if (m_heightValues[i] < 0.15) //Darker grass
-		//{
-		//	if (m_moisture[i] > 0.5)
-		//	{
-		//		m_colors[i] = darkGreen * lightness;
-		//	}
-		//	else
-		//		m_colors[i] = grey* lightness;
-		//}
-		//else if (m_heightValues[i] < 0.25) //Grey rock + grass
-		//{
-		//	if (m_moisture[i] > 0.5)
-		//	{
-		//		m_colors[i] = darkGreen * lightness;
-		//	}
-		//	else
-		//		m_colors[i] = grey*lightness;
-		//}
-		//else if (m_heightValues[i] < 0.35) //Grey rock + darker grey
-		//{
-		//	if (m_moisture[i] > 0.55)
-		//	{
-		//		m_colors[i] = darkGrey * lightness;
-		//	}
-		//	else
-		//		m_colors[i] = grey*lightness;
-		//}
-		//else if (m_heightValues[i] < 0.35) //Grey rock + white snow
-		//{
-		//	if (m_moisture[i] > 0.4)
-		//	{
-		//		m_colors[i] = white * lightness;
-		//	}
-		//	else
-		//		m_colors[i] = grey*lightness;
-		//}
-		//else //White snow + darker snow
-		//{
-		//	if (m_moisture[i] > 0.6)
-		//	{
-		//		m_colors[i] = notSoWhite * lightness;
-		//	}
-		//	else
-		//		m_colors[i] = white * lightness;
-		//}
-	}
-}
-
-void HeightMapLoader::createDisplayList()
-{
-	m_groundDispList = glGenLists(1);
-	glNewList(m_groundDispList, GL_COMPILE);
-
-	glDisable(GL_TEXTURE_2D);
-	glPushMatrix();
-	GLfloat ambient_and_diffuse[] = { 1, 1, 1, 1.0 };
-	GLfloat floor_specular[] = { 0, 0, 0, 1.0 };
-	glMaterialfv(GL_FRONT, GL_SPECULAR, floor_specular);
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
-
-	vec3f normal;
-	float height = 0.f;
-	vec3f color;
-	//float image_width = heightMap->getImageWidth() - 1;
-	//float image_height = heightMap->getImageHeight() - 1;
-	for (float i = 0; i < ((m_width-1)*m_scale); i += m_scale)
-	{
-		glBegin(GL_TRIANGLE_STRIP); //vertices: 012 213 234 435 ....
-		for (float j = 0; j < ((m_height-1)*m_scale); j += m_scale)
-		{
-			//glTexCoord2f(i/ image_width, j/ image_height);
-			//height = heightMap->getHeight((i + scale) / scale, j / scale);
-			color = getColor((i + m_scale) / m_scale, j / m_scale);
-			ambient_and_diffuse[0] = color.x();
-			ambient_and_diffuse[1] = color.y();
-			ambient_and_diffuse[2] = color.z();
-			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
-			normal = getNormal((i + m_scale) / m_scale, j / m_scale);
-			glNormal3f(normal.x(), normal.y(), normal.z());
-			glVertex3f(i + m_scale,
-				getHeight((i + m_scale) / m_scale, j / m_scale)*m_maxHeight,
-				j);
-
-			//glTexCoord2f(i / image_width, (j+scale) / image_height);
-			//height = heightMap->getHeight(i / scale, j / scale);
-			color = getColor(i / m_scale, j / m_scale);
-			ambient_and_diffuse[0] = color.x();
-			ambient_and_diffuse[1] = color.y();
-			ambient_and_diffuse[2] = color.z();
-			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
-			normal = getNormal(i / m_scale, j / m_scale);
-			glNormal3f(normal.x(), normal.y(), normal.z());
-			glVertex3f(i,
-				getHeight(i / m_scale, j / m_scale) * m_maxHeight,
-				j);
-
-			//glTexCoord2f((i+scale) / image_width, j / image_height);
-			//height = heightMap->getHeight((i + scale) / scale, j / scale);
-			color = getColor((i + m_scale) / m_scale, (j + m_scale) / m_scale);
-			ambient_and_diffuse[0] = color.x();
-			ambient_and_diffuse[1] = color.y();
-			ambient_and_diffuse[2] = color.z();
-			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
-			normal = getNormal((i + m_scale) / m_scale, (j + m_scale) / m_scale);
-			glNormal3f(normal.x(), normal.y(), normal.z());
-			glVertex3f(i + m_scale,
-				getHeight((i + m_scale) / m_scale, (j + m_scale) / m_scale) * m_maxHeight,
-				j + m_scale);
-
-			//glTexCoord2f((i + scale) / image_width, (j + scale) / image_height);
-			//height = heightMap->getHeight((i + scale) / scale, j / scale);
-			color = getColor(i / m_scale, (j + m_scale) / m_scale);
-			ambient_and_diffuse[0] = color.x();
-			ambient_and_diffuse[1] = color.y();
-			ambient_and_diffuse[2] = color.z();
-			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
-			normal = getNormal(i / m_scale, (j + m_scale) / m_scale);
-			glNormal3f(normal.x(), normal.y(), normal.z());
-			glVertex3f(i,
-				getHeight(i / m_scale, (j + m_scale) / m_scale) * m_maxHeight,
-				j + m_scale);
-		}
-		glEnd();
-	}
-
-	glPopMatrix();
-	glEnable(GL_TEXTURE_2D);
-	glEndList();
-}
-
-void HeightMapLoader::getMoistValues()
-{
-	m_fileName = "moisture.png";
-	LoadingGreyScaleImage();
-	m_moisture = new float[m_width*m_height];
-	for (int i = 0; i < m_width*m_height; i++)
-	{
-		m_moisture[i] = (float)m_image[i] / 255.0f;
-		if (m_moisture[i]>m_wettestPoint)
-		{
-			m_wettestPoint = m_moisture[i];
-		}
-		else if (m_moisture[i]<m_dryestPoint)
-		{
-			m_dryestPoint = m_moisture[i];
-		}
-	}
-}
-
-void HeightMapLoader::LoadingGreyScaleImage()
-{
-	m_image = SOIL_load_image(m_fileName, &m_width, &m_height, &m_channels, SOIL_LOAD_L);
-	if (m_image == NULL)
-	{
-		std::cout << m_fileName << " could not be loaded!" << std::endl;
-	}
-	else
-	{
-		std::cout << m_fileName << " loaded! resolution: " << m_width << "x" << m_height << std::endl;
-	}
-}
-
-bool HeightMapLoader::existingCoord(int x, int z)
-{
-	if (x>=0 && z>=0 && x<m_width && z<m_height)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-vec3f calcNormalFromPoints(vec3f& p0, vec3f& p1, vec3f& p2)
-{
-	vec3f v1 = p1 - p0;
-	vec3f v2 = p2 - p0;
-	return v1*v2;	
-}
-void HeightMapLoader::calcVertexNormals()
-{
-	std::cout << "Generating normals...\t\t";
-	m_vertexNormals = new vec3f[m_width*m_height];
-	vec3f p0(0, 0, 0);
-	vec3f p1(0, 0, 0);
-	vec3f p2(0, 0, 0);
-	int triangles;
-	for (int i = 0; i < m_width; i++)
-	{
-		for (int j = 0; j < m_height; j++)
-		{
-			vec3f& actualNormal = m_vertexNormals[i, j];
-			actualNormal = vec3f(0, 0, 0);
-			p0 = vec3f(i, getHeight(i, j), j);
-			triangles = 0;
-			//second
-			if (existingCoord(i - 1, j))
-			{
-				if (existingCoord(i - 1, j+1))
-				{
-					p1 = vec3f(i - 1, getHeight(i - 1, j), j);
-					p2 = vec3f(i - 1, getHeight(i - 1, j + 1), j + 1);
-					triangles++;
-					actualNormal += calcNormalFromPoints(p0, p1, p2);
-				}
-			}
-			//third - if 3rd exists, then 4th exists too
-			if (existingCoord(i - 1, j + 1))
-			{
-					p1 = vec3f(i - 1, getHeight(i - 1, j + 1), j + 1);
-					p2 = vec3f(i, getHeight(i, j + 1), j + 1);
-					triangles++;
-					actualNormal += calcNormalFromPoints(p0, p1, p2);
-					//check if 5th exists => p1=4th, p2=5th
-					if (existingCoord(i + 1, j))
-					{
-						p1 = vec3f(i, getHeight(i, j + 1), j + 1);
-						p2 = vec3f(i + 1, getHeight(i + 1, j), j);
-						triangles++;
-						actualNormal += calcNormalFromPoints(p0, p1, p2);
-					}
-			}
-			//fifth
-			if (existingCoord(i + 1, j))
-			{
-				if (existingCoord(i + 1, j - 1))
-				{
-					p1 = vec3f(i + 1, getHeight(i + 1, j), j);
-					p2 = vec3f(i + 1, getHeight(i + 1, j - 1), j - 1);
-					triangles++;
-					actualNormal += calcNormalFromPoints(p0, p1, p2);
-				}
-			}
-			//sixth => if 6th exists, then 1st exists too
-			if (existingCoord(i + 1, j - 1))
-			{
-					p1 = vec3f(i + 1, getHeight(i + 1, j - 1), j - 1);
-					p2 = vec3f(i, getHeight(i, j - 1), j - 1);
-					triangles++;
-					actualNormal += calcNormalFromPoints(p0, p1, p2);
-					//check if 2nd exists => p1=1st p2=2nd
-					if (existingCoord(i - 1, j))
-					{
-						p1 = vec3f(i, getHeight(i, j - 1), j - 1);
-						p2 = vec3f(i - 1, getHeight(i - 1, j), j);
-						triangles++;
-						actualNormal += calcNormalFromPoints(p0, p1, p2);
-					}
-			}
-
-			actualNormal /= triangles;
-			actualNormal.normalize();
-		}
-	}
-	std::cout << "Done\n";
-}
-
-HeightMapLoader::HeightMapLoader(char* fileName)
-{
-	//moisture
-	getMoistValues();
-	SOIL_free_image_data(m_image);
-	//height
-	m_fileName = fileName;
-	LoadingGreyScaleImage();
-	getHeightValues();
-	calcVertexNormals();
-	SOIL_free_image_data(m_image);
-	//color
-	determineColors();
-	//display list
-	createDisplayList();
-}
-
-void HeightMapLoader::drawTerrain()
-{
-	glCallList(m_groundDispList);
-}
-
-HeightMapLoader::~HeightMapLoader()
-{
-	delete  m_image;
-	delete m_fileName;
-	delete  m_vertexNormals;
-	delete  m_heightValues;
-}
-
-int HeightMapLoader::getImageWidth()
-{
-	return m_width;
-}
-
-int HeightMapLoader::getImageHeight()
-{
-	return m_height;
-}
-
-float HeightMapLoader::getHeight(int x, int z)
-{
-	//std::cout << "x,z: " << x << ", " << z << std::endl;
-	if (x < m_width && z < m_height && x >= 0 && z >= 0)
-	{
-		return m_heightValues[z*m_width + x];
-	}	
-	else
-	{
-		return 1.0f;
-	}
-}
-
-vec3f HeightMapLoader::getNormal(int x, int z)
-{
-	if (x < m_width && z < m_height && x >= 0 && z >= 0)
-	{
-		return m_vertexNormals[x,z];
-	}
-	else
-	{
-		return vec3f(0, 1, 0);
-	}
-}
-
-vec3f HeightMapLoader::getColor(int x, int z)
-{
-	return m_colors[z*m_width + x];
-}
-
-float HeightMapLoader::getScale()
-{
-	return m_scale;
-}
-
-float HeightMapLoader::getMaxHeight()
-{
-	return m_maxHeight;
-}
-

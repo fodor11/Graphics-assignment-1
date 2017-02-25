@@ -4,75 +4,81 @@
 #include <string>
 #include <fstream>
 #include "model.hpp"
+#include <vector>
+#include <map>
 
 class vec3f; 
 
 class FacePoint
 {
-	int m_v;	//0
-	int m_vt;	//1
-	int m_vn;	//2
-
 public:
 	FacePoint();
 	~FacePoint();
 	int& operator[](int index);
-	int & getV();
-	int & getVt();
-	int & getVn();
+	int & getVertex();
+	int & getVertexTexture();
+	int & getVertexNormal();
+
+private:
+	int m_vertex;	//0
+	int m_vertexTexture;	//1
+	int m_vertexNormal;	//2
 };
 
 class Face
 {
-	FacePoint * m_facePoint;
 public:
 	Face();
+	Face(const Face& other);
 	~Face();
 	FacePoint& operator[](int index);
 	Face& operator=(const Face& other);
+	Face& operator=(Face& other);
+	string printFace();
+private:
+	FacePoint * m_pFacePoint;
 };
 
 class ObjectLoader
 {
-	unsigned int m_num_v = 0;
-	unsigned int m_num_vt = 0;
-	unsigned int m_num_vn = 0;
-	unsigned int n_materials = 0;
+public:
+	ObjectLoader();
+	~ObjectLoader();
+	void loadObjFile(std::string filename);
+	std::vector<vec3f> getVertices() const;
+	std::vector<vec3f> getVertexNormals() const;
+	std::vector<std::pair<float, float>> getTextureCoords() const;
+	std::map<std::string, std::vector<Face>> getFaceLists() const;
+
+private:
+	unsigned int m_num_vertices = 0;
+	unsigned int m_num_vertexTextures = 0;
+	unsigned int m_num_vertexNormals = 0;
+	unsigned int m_num_materials = 0;
 	void countTokens();
 
 	unsigned int m_current_faceList = 0;
-	int getFaceListIndex(string textureAlias);
+	std::string getTextureFileName(const std::string& textureAlias) const;
+	int getFaceListIndex(const std::string& textureAlias) const;
 
-	vec3f * m_vertices;
-	vec3f * m_vertNormals;
-	float * m_textureCoords;
-	//Pointers to Face* objects (separated by textures)
-	Face ** m_faceLists;
+	std::vector<vec3f> m_vertices;
+	std::vector<vec3f> m_vertexNormals;
+	std::vector<std::pair<float, float>> m_textureCoords;
+	std::map<std::string, std::vector<Face>> m_faceLists;
+
+
 	//the lengths of the facelists in order
-	int * m_faceList_length;
+	int * m_faceList_lengths;
 	void readData();
 
 	//read the corresponding .mtl, extracts texture aliases and filenames, 
 	//initializes m_faceLists and m_faceList_length
-	void readMtl(string filename);
+	void readMtlFile(string filename);
 	//string array: [Txtr Alias][Txtr Filename]
 	//the first txtr belongs to the first faceList etc...
-	string** m_texture_alias;
+	std::vector<std::pair<std::string, std::string>> m_texture_aliases;
 
 	ifstream m_file;
-
-public:
-	ObjectLoader();
-	~ObjectLoader();
-	void loadObjFile(char* filename);
-	vec3f* getVertices();
-	vec3f* getVertexNormals();
-	float* getTextureCoords();
-
-	Face** getFaceLists();
-	int* getFaceListLengths();
-	int getNumberOfFacelists();
-	string* getTextureFileNames();
 };
 
 class Skybox

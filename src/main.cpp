@@ -5,7 +5,8 @@
 #include <string>
 #include "../include/buildSnowman.hpp"
 #include "../include/texture.hpp"
-#include "..//include/object.hpp"
+#include "../include/object.hpp"
+#include "../include/heightmap.hpp"
 
 #define PI 3.14159265
 #define RadToAngle 180/PI
@@ -398,33 +399,9 @@ void initialize()
 */
 int main(int argc, char* argv[])
 {
-	//array testing
-	//int *a = new int[3, 2];
-	//for (int i = 0; i < 3; i++)
-	//{
-	//	for (int j = 0; j < 2; j++)
-	//	{
-	//		a[i, j] = i * 2 + j;
-	//		cout << a[i, j] << endl;
-	//	}
-	//}
-	//cout << "second out:" << endl;
-	//for (int i = 0; i < 3; i++)
-	//{
-	//	for (int j = 0; j < 2; j++)
-	//	{
-	//		cout << a[i, j] << endl;
-	//	}
-	//}
-	//cout << "third out:" << endl;
-	//for (int i = 0; i < 3; i++)
-	//{
-	//	for (int j = 0; j < 2; j++)
-	//	{
-	//		cout << i * 2 + j<<": ";
-	//		cout << a[i*2+j] << endl;
-	//	}
-	//}
+	//vector testing
+
+
 
 	cout << "Init GLUT ..." << endl;
 	glutInit(&argc, argv);

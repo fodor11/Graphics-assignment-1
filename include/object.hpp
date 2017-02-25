@@ -4,17 +4,18 @@
 
 class Tree
 {
-	unsigned int * m_textures;
-	void loadTextures(string* fileNames, int num_of_files);
+public:
+	Tree();
+	~Tree();
+	void drawTree();
+
+private:
+	std::vector<GLuint> m_textures;
+	GLuint loadTexture(string fileNames);
+	void drawFace(Face& face) const;
 	GLuint m_dispList;
 	void loadDispList();
 
 	GLuint leafTxtr;
 	GLuint barkTxtr;
-	void loadTextures();
-public:
-	Tree();
-	~Tree();
-	void drawTree();
-	void move();
 };

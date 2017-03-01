@@ -25,7 +25,7 @@ void HeightMapLoader::getHeightValues()
 
 void HeightMapLoader::determineColors()
 {
-	float lightness;
+	float lightness = 1.f;
 	m_pColors = new vec3f[m_width * m_height];
 
 	TextureLoader *biome = new TextureLoader();
@@ -33,11 +33,11 @@ void HeightMapLoader::determineColors()
 
 	for (int i = 0; i < m_width * m_height; i++)
 	{
-		lightness = (m_pHeightValues[i] + 0.05) * 2;
-		if (lightness > 0.5)
-		{
-			lightness = 0.5;
-		}
+		//lightness = (m_pHeightValues[i] + 0.05) * 2;
+		//if (lightness > 0.5)
+		//{
+		//	lightness = 0.5;
+		//}
 		float realtiveHeight = (m_pHeightValues[i] - m_lowestPoint) / (m_highestPoint - m_lowestPoint);
 		float relativeMoisture = (m_pMoisture[i] - m_dryestPoint) / (m_wettestPoint - m_dryestPoint);
 		m_pColors[i] = biome->getPixelColor(relativeMoisture, realtiveHeight)*lightness;
@@ -46,15 +46,24 @@ void HeightMapLoader::determineColors()
 
 void HeightMapLoader::createDisplayList()
 {
+	TextureLoader texLoader;
+	texLoader.loadMipMappedTexture("ground_soil.jpg");
+	GLuint texId = (GLuint) texLoader.textureID();
+	texLoader.~TextureLoader();
+	
 	m_groundDispList = glGenLists(1);
+	
 	glNewList(m_groundDispList, GL_COMPILE);
 
-	glDisable(GL_TEXTURE_2D);
 	glPushMatrix();
-	GLfloat ambient_and_diffuse[] = { 1, 1, 1, 1.0 };
-	GLfloat floor_specular[] = { 0, 0, 0, 1.0 };
-	glMaterialfv(GL_FRONT, GL_SPECULAR, floor_specular);
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
+	//glDisable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texId);
+
+	GLfloat ground_specular[] = { 0.f, 0.f, 0.f, 1.0f };
+	GLfloat ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	GLfloat diffuse[] = { 0.f, 0.f, 0.f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_SPECULAR, ground_specular);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
 
 	vec3f normal;
 	float height = 0.f;
@@ -65,10 +74,12 @@ void HeightMapLoader::createDisplayList()
 		for (float j = 0; j < ((m_height - 1)*m_scale); j += m_scale)
 		{
 			color = getColor((i + m_scale) / m_scale, j / m_scale);
-			ambient_and_diffuse[0] = color.x();
-			ambient_and_diffuse[1] = color.y();
-			ambient_and_diffuse[2] = color.z();
-			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
+			diffuse[0] = color.x();
+			diffuse[1] = color.y();
+			diffuse[2] = color.z();
+
+			glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+			glTexCoord2f(i, j);
 			normal = getNormal((i + m_scale) / m_scale, j / m_scale);
 			glNormal3f(normal.x(), normal.y(), normal.z());
 			glVertex3f(i + m_scale,
@@ -76,10 +87,11 @@ void HeightMapLoader::createDisplayList()
 				j);
 
 			color = getColor(i / m_scale, j / m_scale);
-			ambient_and_diffuse[0] = color.x();
-			ambient_and_diffuse[1] = color.y();
-			ambient_and_diffuse[2] = color.z();
-			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
+			diffuse[0] = color.x();
+			diffuse[1] = color.y();
+			diffuse[2] = color.z();
+			glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+			glTexCoord2f(i, (j+ m_scale));
 			normal = getNormal(i / m_scale, j / m_scale);
 			glNormal3f(normal.x(), normal.y(), normal.z());
 			glVertex3f(i,
@@ -87,10 +99,11 @@ void HeightMapLoader::createDisplayList()
 				j);
 
 			color = getColor((i + m_scale) / m_scale, (j + m_scale) / m_scale);
-			ambient_and_diffuse[0] = color.x();
-			ambient_and_diffuse[1] = color.y();
-			ambient_and_diffuse[2] = color.z();
-			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
+			diffuse[0] = color.x();
+			diffuse[1] = color.y();
+			diffuse[2] = color.z();
+			glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+			glTexCoord2f((i+ m_scale), j);
 			normal = getNormal((i + m_scale) / m_scale, (j + m_scale) / m_scale);
 			glNormal3f(normal.x(), normal.y(), normal.z());
 			glVertex3f(i + m_scale,
@@ -98,10 +111,11 @@ void HeightMapLoader::createDisplayList()
 				j + m_scale);
 
 			color = getColor(i / m_scale, (j + m_scale) / m_scale);
-			ambient_and_diffuse[0] = color.x();
-			ambient_and_diffuse[1] = color.y();
-			ambient_and_diffuse[2] = color.z();
-			glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambient_and_diffuse);
+			diffuse[0] = color.x();
+			diffuse[1] = color.y();
+			diffuse[2] = color.z();
+			glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+			glTexCoord2f((i + m_scale), (j + m_scale));
 			normal = getNormal(i / m_scale, (j + m_scale) / m_scale);
 			glNormal3f(normal.x(), normal.y(), normal.z());
 			glVertex3f(i,
@@ -110,10 +124,10 @@ void HeightMapLoader::createDisplayList()
 		}
 		glEnd();
 	}
-
-	glPopMatrix();
 	glEnable(GL_TEXTURE_2D);
+	glPopMatrix();
 	glEndList();
+	
 }
 
 void HeightMapLoader::getMoistValues()

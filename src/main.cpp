@@ -97,7 +97,7 @@ HeightMapLoader *heightMap;
 Tree *tree1;
 
 int time = 0;
-double fpsMeter() 
+double calcFps() 
 {
 	int now = glutGet(GLUT_ELAPSED_TIME);
 	double fps = 1 / ((now - time) / 1000.0);
@@ -105,7 +105,7 @@ double fpsMeter()
 	return fps;
 }
 
-void printFPS()
+void printFps()
 {
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix(); 
@@ -119,7 +119,7 @@ void printFPS()
 	glColor3f(1.f, 0.f, 0.f);
 	glRasterPos2f(0.6f, -0.9f);
 	std::string fpsString = "fps: ";
-	fpsString += std::to_string(fpsMeter());
+	fpsString += std::to_string(calcFps());
 	//cout << "called" << fpsString << fpsMeter() << endl;
 	for (int i = 0; i < strlen(fpsString.c_str()); i++)
 	{
@@ -170,20 +170,20 @@ void display()
 		{
 			glPushMatrix();
 			glTranslatef(i, heightMap->getHeight(i / scale, j / scale) * maxHeight, j);
-			//tree1->drawTree();
+			tree1->drawBillBoard();
 			glPopMatrix();
 		}
 	}
 	glPushMatrix();
 	glTranslatef(midMapX, heightMap->getHeight(midMapX / scale, midMapX / scale) * maxHeight, midMapX);
 	tree1->drawTree();
+	
 	glPopMatrix();
 
 	//reset position of the lightsource
-	//glLightfv(GL_LIGHT1, GL_POSITION, moon_position);
 	glLightfv(GL_LIGHT1, GL_POSITION, moon_position);
-	drawAxis();
-	printFPS();
+	
+	printFps();
 
 	//check errors	
 	error = glGetError();
@@ -363,7 +363,7 @@ void initialize()
 	cameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
 
 	//Load 3D models
-	tree1 = new Tree();
+	tree1 = new Tree("pine1");
 	//ObjectLoader* objLoader = new ObjectLoader();
 	//objLoader->loadObjFile("pine1.obj");
 	//objLoader->~ObjectLoader();
@@ -372,8 +372,22 @@ void initialize()
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_AUTO_NORMAL);
 	//glEnable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//Alpha functions
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.5f);
+
+	//set up fog
+	GLfloat fogColor[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
+	//glEnable(GL_FOG);
+	glFogf(GL_FOG_MODE, GL_LINEAR);
+	glFogfv(GL_FOG_COLOR, fogColor);
+	glFogf(GL_FOG_DENSITY, 0.75);
+	glFogf(GL_FOG_START, 1.0);
+	glFogf(GL_FOG_END, 1300.0);
+	glHint(GL_FOG_HINT, GL_DONT_CARE);
 
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 

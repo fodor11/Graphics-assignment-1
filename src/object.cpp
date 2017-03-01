@@ -14,10 +14,10 @@ void Tree::drawFace(Face & face) const
 
 }
 
-void Tree::loadDispList()
+void Tree::loadObjectDispList()
 {
 	ObjectLoader* objLoader = new ObjectLoader();
-	objLoader->loadObjFile("pine1.obj");
+	objLoader->loadObjFile(m_fileName + ".obj");
 
 	std::vector<vec3f> vertices = objLoader->getVertices();
 	std::vector<vec3f> vertNormals = objLoader->getVertexNormals();
@@ -30,15 +30,27 @@ void Tree::loadDispList()
 	vec3f vertex, vertexNormal;
 	float u, v;
 
-	m_dispList = glGenLists(1);
-	glNewList(m_dispList, GL_COMPILE);
+	m_objectDispList = glGenLists(1);
+	glNewList(m_objectDispList, GL_COMPILE);
 	glPushMatrix();
 	glEnable(GL_TEXTURE_2D);
+	//tree material
+	GLfloat specular[] = { 0.f, 0.f, 0.f, 1.0f };
+	GLfloat ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+	GLfloat diffuse[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+
 		glRotatef(-90, 1, 0, 0);
-		float scale = 0.05;
-		glScalef(scale, scale, scale);
+		m_scale = 0.05;
+		glScalef(m_scale, m_scale, m_scale);
 		for (auto map = faceLists.begin(); map != faceLists.end(); map++)
 		{
+			//if (map->first.find("ned") != std::string::npos)
+			//{
+			//	glDepthMask(GL_FALSE);
+			//}
 			GLuint textureId = loadTexture(map->first);
 			glBindTexture(GL_TEXTURE_2D, textureId);
 			std::cout << "bound texture: " << map->first << endl;
@@ -66,17 +78,73 @@ void Tree::loadDispList()
 				}
 				glEnd();
 			}
+			//if (map->first.find("ned") != std::string::npos)
+			//{
+			//	glDepthMask(GL_TRUE);
+			//}
+
 		}	
+	//glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glEndList();
 
 	objLoader->~ObjectLoader();
 }
 
-
-Tree::Tree()
+void Tree::loadBillBoardDispList()
 {
-	loadDispList();
+	loadTexture(m_fileName + ".png");
+	float height = 14.0f;
+
+	m_billBoardDispList = glGenLists(1);
+	glNewList(m_billBoardDispList, GL_COMPILE);
+	glPushMatrix();
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, m_textures.back());
+
+	GLfloat specular[] = { 0.f, 0.f, 0.f, 1.0f };
+	GLfloat ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+	GLfloat diffuse[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+
+	//glDepthMask(GL_FALSE);
+
+	//glScalef(10, 10, 10);
+	for (int i = 0; i < 2; i++)
+	{
+		glTranslatef(height / 2, 0.f, 0.f);
+		glRotatef(90.f * i, 0.f, 1.f, 0.f);
+		glTranslatef(- height / 2, 0.f, 0.f);
+		glBegin(GL_TRIANGLE_STRIP);
+
+		glTexCoord2f(0.f, 1.f);
+		glVertex3f(0.f, 0.f, 0.f);
+
+		glTexCoord2f(1.f, 1.f);
+		glVertex3f(height, 0.f, 0.f);
+
+		glTexCoord2f(0.f, 0.f);
+		glVertex3f(0.f, height, 0.f);
+
+		glTexCoord2f(1.f, 0.f);
+		glVertex3f(height, height, 0.f);
+
+		glEnd();
+	}
+	//glDepthMask(GL_TRUE);
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+	glEndList();
+}
+
+
+Tree::Tree(string fileName)
+{
+	m_fileName = fileName;
+	loadObjectDispList();
+	loadBillBoardDispList();
 }
 
 Tree::~Tree()
@@ -85,5 +153,10 @@ Tree::~Tree()
 
 void Tree::drawTree()
 {
-	glCallList(m_dispList);
+	glCallList(m_objectDispList);
+}
+
+void Tree::drawBillBoard()
+{
+	glCallList(m_billBoardDispList);
 }

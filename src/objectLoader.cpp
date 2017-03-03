@@ -1,10 +1,5 @@
 #include "..\include\objectLoader.hpp"
 
-void Skybox::drawSky(char * fileName)
-{
-
-}
-
 //read .mtl
 void ObjectLoader::readMtlFile(std::string filename)
 {
@@ -162,7 +157,20 @@ void parseFace(Face& face, std::string line)
 		}
 	}
 }
-
+void ObjectLoader::compareBoundingBox(vec3f& vertex)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		if (vertex[i] < m_boundingBox.m_min_vertex[i])
+		{
+			m_boundingBox.m_min_vertex[i] = vertex[i];
+		}
+		else if (vertex[i] > m_boundingBox.m_max_vertex[i])
+		{
+			m_boundingBox.m_max_vertex[i] = vertex[i];
+		}
+	}
+}
 void ObjectLoader::readData()
 {
 	//clear EOF flag and return to the beginning
@@ -184,6 +192,7 @@ void ObjectLoader::readData()
 			{
 				parse3floats(tmpVector, line);
 				m_vertices.push_back(tmpVector);
+				compareBoundingBox(m_vertices.back());
 			}
 			else if (line.compare(0, 2, "vt") == 0)
 			{
@@ -207,15 +216,13 @@ void ObjectLoader::readData()
 		}
 	}
 	std::cout << "Parsing done" << endl;
+	std::cout << "bounding box min: " << string(m_boundingBox.getMinVertex()).c_str() << endl;
+	std::cout << "bounding box max: " << string(m_boundingBox.getMaxVertex()).c_str() << endl;
 }
 
-ObjectLoader::ObjectLoader()
-{
-}
+ObjectLoader::ObjectLoader(){}
 
-ObjectLoader::~ObjectLoader()
-{
-}
+ObjectLoader::~ObjectLoader(){}
 
 void ObjectLoader::loadObjFile(std::string filename)
 {
@@ -247,25 +254,10 @@ std::map<std::string, std::vector<Face>> ObjectLoader::getFaceLists() const
 	return m_faceLists;
 }
 
-//int * ObjectLoader::getFaceListLengths() const
-//{
-//	return m_faceList_lengths;
-//}
-//
-//int ObjectLoader::getNumberOfFacelists() const
-//{
-//	return m_num_materials;
-//}
-//
-//string * ObjectLoader::getTextureFileNames() const
-//{
-//	string* ret = new string[m_num_materials];
-//	for (int i = 0; i < m_num_materials; i++)
-//	{
-//		ret[i] = m_texture_alias[i][1];
-//	}
-//	return ret;
-//}
+BoundingBox & ObjectLoader::getBoundingBox()
+{
+	return m_boundingBox;
+}
 
 FacePoint::FacePoint()
 {
@@ -379,4 +371,34 @@ string Face::printFace()
 
 	return ret;
 }
-								
+
+BoundingBox::BoundingBox()
+{
+	m_min_vertex = vec3f();
+	m_max_vertex = vec3f();
+}
+
+vec3f BoundingBox::getMinVertex() const
+{
+	return m_min_vertex;
+}
+
+vec3f BoundingBox::getMaxVertex() const
+{
+	return m_max_vertex;
+}
+
+float BoundingBox::getXdistance()
+{
+	return m_max_vertex[0] - m_min_vertex[0];
+}
+
+float BoundingBox::getYdistance()
+{
+	return m_max_vertex[1] - m_min_vertex[1];
+}
+
+float BoundingBox::getZdistance()
+{
+	return m_max_vertex[2] - m_min_vertex[2];
+}

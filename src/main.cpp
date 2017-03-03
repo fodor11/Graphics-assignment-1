@@ -363,7 +363,7 @@ void initialize()
 	cameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
 
 	//Load 3D models
-	tree1 = new Tree("pine1");
+	tree1 = new Tree("pine3");
 	//ObjectLoader* objLoader = new ObjectLoader();
 	//objLoader->loadObjFile("pine1.obj");
 	//objLoader->~ObjectLoader();

@@ -7,60 +7,60 @@ using namespace std;
 class vec3f
 {
 public:
-	//Constructors
+	/// Constructors
 	vec3f(void);
 	vec3f(float x, float y, float z);
 	vec3f(vec3f& vector);
 	vec3f(const vec3f& vector);
 
-	//get values
+	/// get values
 	float x() const;
 	float y() const;
 	float z() const;
 
-	//set values
+	/// set values
 	void setX(float value);
 	void setY(float value);
 	void setZ(float value);
 
-	//string cast
+	/// string cast
 	operator string() const;
 
-	//sum of an another vector and this one
+	/// sum of an another vector and this one
 	vec3f operator+(const vec3f& other);
 	vec3f& operator+=(const vec3f& rhs);
 
-	//difference of an another vector and this one
+	/// difference of an another vector and this one
 	vec3f operator-(const vec3f& other);
 	vec3f& operator-=(const vec3f& rhs);
 
-	// = operator - copy
+	/// = operator - copy
 	vec3f& operator=(const vec3f& other);
 
-	// == equals operator
+	/// == equals operator
 	bool operator==(const vec3f other);
 
-	//cross product
+	/// cross product
 	vec3f operator*(const vec3f& other);
 	vec3f& operator*=(const vec3f& rhs);
 
-	//multiplying with number
+	/// multiplying with number
 	vec3f operator*(const float& value);
 	vec3f& operator*=(const float& rhs);
 
-	//dividing by number
+	/// dividing by number
 	vec3f operator/(const float& value);
 	vec3f& operator/=(const float& rhs);
 
-	//get x,y,z with []
+	/// get x,y,z with []
 	float& operator[](int index);
 
-	//multiplicating by members
+	/// multiplicating by members
 	vec3f multiplicate(vec3f& other);
 
-	//normalizing
+	/// normalizing
 	void normalize();
-	//length of the vector
+	/// length of the vector
 	float length() const;
 
 	~vec3f();

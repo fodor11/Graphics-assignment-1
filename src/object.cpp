@@ -14,6 +14,18 @@ void Tree::drawFace(Face & face) const
 
 }
 
+void Tree::getHeight(BoundingBox& boundingBox)
+{
+	m_height = boundingBox.getXdistance();
+	if (m_height < boundingBox.getYdistance())
+	{
+		m_height = boundingBox.getYdistance();
+	}
+	if (m_height < boundingBox.getZdistance())
+	{
+		m_height = boundingBox.getZdistance();
+	}
+}
 void Tree::loadObjectDispList()
 {
 	ObjectLoader* objLoader = new ObjectLoader();
@@ -23,6 +35,8 @@ void Tree::loadObjectDispList()
 	std::vector<vec3f> vertNormals = objLoader->getVertexNormals();
 	std::vector<std::pair<float, float>> textureCoords = objLoader->getTextureCoords();
 	std::map<std::string, std::vector<Face>> faceLists = objLoader->getFaceLists();
+
+	getHeight(objLoader->getBoundingBox());
 
 	//temporary
 	Face face;
@@ -94,7 +108,7 @@ void Tree::loadObjectDispList()
 void Tree::loadBillBoardDispList()
 {
 	loadTexture(m_fileName + ".png");
-	float height = 14.0f;
+	float height = m_height * m_scale;
 
 	m_billBoardDispList = glGenLists(1);
 	glNewList(m_billBoardDispList, GL_COMPILE);
@@ -110,8 +124,6 @@ void Tree::loadBillBoardDispList()
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
 
 	//glDepthMask(GL_FALSE);
-
-	//glScalef(10, 10, 10);
 	for (int i = 0; i < 2; i++)
 	{
 		glTranslatef(height / 2, 0.f, 0.f);

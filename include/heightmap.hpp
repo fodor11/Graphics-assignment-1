@@ -16,7 +16,7 @@ public:
 	~HeightMapLoader();
 	int getImageWidth() const;
 	int getImageHeight() const;
-	float getHeight(int x, int z) const;
+	float getHeight(float x, float z);
 	float getScale() const;
 	float getMaxHeight() const;
 
@@ -49,6 +49,7 @@ private:
 	vec3f getColor(int x, int z) const;
 	void determineColors();
 	void createDisplayList();
+	float linearInterpolation(float pointA, float pointB, float weightB);
 
 	void LoadingGreyScaleImage();
 	bool existingCoord(int x, int z);

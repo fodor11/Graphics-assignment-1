@@ -191,7 +191,7 @@ void HeightMapLoader::calcVertexNormals()
 	{
 		for (int j = 0; j < m_height; j++)
 		{
-			vec3f& actualNormal = m_pVertexNormals[i, j];
+			vec3f& actualNormal = m_pVertexNormals[i*m_width + j];
 			actualNormal = vec3f(0, 0, 0);
 			p0 = vec3f(i, getHeight(i, j), j);
 			triangles = 0;
@@ -296,11 +296,29 @@ int HeightMapLoader::getImageHeight() const
 	return m_height;
 }
 
-float HeightMapLoader::getHeight(int x, int z) const
+float HeightMapLoader::linearInterpolation(float pointA, float pointB, float weightB)
 {
-	if (x < m_width && z < m_height && x >= 0 && z >= 0)
+	float weightA = 1 - weightB;
+	float ret = pointA * weightA + pointB * weightB;
+	return ret;
+}
+float HeightMapLoader::getHeight(float x, float z)
+{
+	if (x < (m_width - 1) && z < (m_height - 1) && x >= 0 && z >= 0)
 	{
-		return m_pHeightValues[z*m_width + x];
+		float xf1, zf1;
+		float weight1 = modff(x, &xf1);
+		float weight2 = modff(z, &zf1);
+		int x1 = (int)xf1;
+		int z1 = (int)zf1;
+		float lin1 = linearInterpolation(m_pHeightValues[z1 * m_width + x1], m_pHeightValues[z1 * m_width + (x1 + 1)], weight1);
+		float lin2 = linearInterpolation(m_pHeightValues[(z1 + 1) * m_width + x1], m_pHeightValues[(z1 + 1) * m_width + (x1 + 1)], weight1);
+		float ret = linearInterpolation(lin1, lin2, weight2);
+		return ret;
+	}
+	else if (x == (m_width - 1) || z == (m_height - 1))
+	{
+		return m_pHeightValues[(int)z * m_width + (int)x];
 	}
 	else
 	{
@@ -312,7 +330,7 @@ vec3f HeightMapLoader::getNormal(int x, int z) const
 {
 	if (x < m_width && z < m_height && x >= 0 && z >= 0)
 	{
-		return m_pVertexNormals[x, z];
+		return m_pVertexNormals[x*m_width + z];
 	}
 	else
 	{

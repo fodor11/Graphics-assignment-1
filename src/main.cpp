@@ -33,8 +33,11 @@ int midX=430, midY=320;
 //menu
 bool menu = false;
 
-void drawAxis()
+void drawAxis(float nullX, float nullY, float nullZ)
 {
+	glPushMatrix();
+	glDisable(GL_TEXTURE_2D);
+	glTranslatef(nullX, nullY, nullZ);
 	glLineWidth(10.0f);
 	glBegin(GL_LINES);	
 	//x axis RED
@@ -52,6 +55,8 @@ void drawAxis()
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse_and_ambient);
 	glColor3f(0.0f, 0.f, 1.f);	glVertex3f(0.f, 0.f, 0.f);	glVertex3f(0.0f, 0.f, 3.f);
 	glEnd();
+	glEnable(GL_TEXTURE_2D);
+	glPopMatrix();
 }
 
 unsigned int skytxtrNr = 0;
@@ -134,7 +139,6 @@ void printFps()
 	glPopMatrix();	
 }
 
-Snowman sm("Olaf");
 GLenum error;
 void display()
 {
@@ -151,10 +155,9 @@ void display()
 	float maxHeight = heightMap->getMaxHeight();
 	//cameraY = heightMap->getHeight(cameraX / scale, cameraZ / scale) * maxHeight + cameraHeight;
 	//set the camera
-	gluLookAt(	cameraX, cameraY, cameraZ,					//camera position
-				cameraX + lx, cameraY, cameraZ + lz,		//look at point
-				0.0f, 0.1f, 0.0f);							//up vector
-	
+	gluLookAt(	cameraX, cameraY, cameraZ,              //camera position
+				cameraX + lx, cameraY, cameraZ + lz,    //look at point
+				0.0f, 0.1f, 0.0f);                      //up vector
 	
 	//Draw ground
 	heightMap->drawTerrain();
@@ -163,6 +166,9 @@ void display()
 
 	int midMapX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
 	int midMapY = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
+
+	drawAxis(midMapX, heightMap->getHeight(midMapX, midMapY) * maxHeight, midMapY);
+
 	//draw Trees
 	for (int i = midMapX -30; i < midMapX + 30; i+=6)
 	{
@@ -175,7 +181,7 @@ void display()
 		}
 	}
 	glPushMatrix();
-	glTranslatef(midMapX, heightMap->getHeight(midMapX / scale, midMapX / scale) * maxHeight, midMapX);
+	glTranslatef(midMapX, heightMap->getHeight(midMapX / scale, midMapY / scale) * maxHeight, midMapY);
 	tree1->drawTree();
 	
 	glPopMatrix();
@@ -320,8 +326,6 @@ void initialize()
 	skySphere = gluNewQuadric();
 	gluQuadricTexture(skySphere, GL_TRUE);
 
-	//snowman display list
-	sm.createDispList();
 
 	//set up moon (sphere + light)
 	moon = gluNewQuadric();
@@ -363,7 +367,7 @@ void initialize()
 	cameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
 
 	//Load 3D models
-	tree1 = new Tree("pine3");
+	tree1 = new Tree("pine1");
 	//ObjectLoader* objLoader = new ObjectLoader();
 	//objLoader->loadObjFile("pine1.obj");
 	//objLoader->~ObjectLoader();

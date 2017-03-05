@@ -124,6 +124,7 @@ void Tree::loadBillBoardDispList()
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
 
 	//glDepthMask(GL_FALSE);
+	glTranslatef(- height / 2, 0.f, 0.f);	//to put the middle of the picture to the right place
 	for (int i = 0; i < 2; i++)
 	{
 		glTranslatef(height / 2, 0.f, 0.f);

@@ -7,6 +7,7 @@
 #include "../include/texture.hpp"
 #include "../include/object.hpp"
 #include "../include/heightmap.hpp"
+#include "../include/camera.hpp"
 
 #define PI 3.14159265
 #define RadToAngle 180/PI
@@ -17,15 +18,17 @@ using namespace std;
 
 //Global variables
 //rotation in the Y axis
-float angle = 0.0f;
-//position of the camera
-float cameraX = 0.0f, cameraY = 0.0f, cameraZ = 0.0f;
-//"height" of the camera
-float cameraHeight = 2.f;
-//camera's direction (vector)
-float lx = 0.0f, lz = -1.0f;
-//horizon angle in radian
-float horizonAngle = 0.0;
+//float angle = 0.0f;
+////position of the camera
+//float cameraX = 0.0f, cameraY = 0.0f, cameraZ = 0.0f;
+////"height" of the camera
+//float cameraHeight = 2.f;
+////camera's direction (vector)
+//float lx = 0.0f, lz = -1.0f;
+////horizon angle in radian
+//float horizonAngle = 0.0;
+//camera object
+Camera camera;
 //mouse position
 int mouseX = 0, mouseY = 0;
 //middle of the screen
@@ -148,16 +151,18 @@ void display()
 	//reset transformations
 	glLoadIdentity();
 
+	camera.updateCamera();
+
 	//set horizon (+change from radius to angle)
-	glRotatef(horizonAngle*RadToAngle, 1, 0, 0);
-	//set camera height
+	//glRotatef(horizonAngle*RadToAngle, 1, 0, 0);
+	////set camera height
 	float scale = heightMap->getScale();
 	float maxHeight = heightMap->getMaxHeight();
-	//cameraY = heightMap->getHeight(cameraX / scale, cameraZ / scale) * maxHeight + cameraHeight;
-	//set the camera
-	gluLookAt(	cameraX, cameraY, cameraZ,              //camera position
-				cameraX + lx, cameraY, cameraZ + lz,    //look at point
-				0.0f, 0.1f, 0.0f);                      //up vector
+	////cameraY = heightMap->getHeight(cameraX / scale, cameraZ / scale) * maxHeight + cameraHeight;
+	////set the camera
+	//gluLookAt(	cameraX, cameraY, cameraZ,              //camera position
+	//			cameraX + lx, cameraY, cameraZ + lz,    //look at point
+	//			0.0f, 0.1f, 0.0f);                      //up vector
 	
 	//Draw ground
 	heightMap->drawTerrain();
@@ -202,6 +207,7 @@ void display()
 
 	glFlush();
 	glutSwapBuffers();	
+	camera.resetMovements();
 }
 
 void reshape(GLsizei width, GLsizei height)
@@ -226,26 +232,34 @@ void motionHandler(int x, int y)
 {
 	//rotation around the Y axis
 	float rotX = (x - mouseX) / 200.0f;
-	angle += rotX;
-	lx = cos(angle);
-	lz = sin(angle);
-	if (angle > (PI * 2) || angle < -(PI * 2))
-	{
-		angle = fmodf(angle, (PI * 2));
-	}
+	camera.addRotationInRadian(rotX);
+	////done
+	//angle += rotX;
+	//lx = cos(angle);
+	//lz = sin(angle);
+	//if (angle > (PI * 2) || angle < -(PI * 2))
+	//{
+	//	angle = fmodf(angle, (PI * 2));
+	//}
+	////done
+
 	//cout << "angle: " << angle*(180 / PI) << endl;
 
 	//changing horizon
 	float rotY = (y - mouseY)/200.f;
-	horizonAngle += rotY;
-	if (horizonAngle < -(PI / 2))
-	{
-		horizonAngle = -(PI / 2);
-	}
-	if (horizonAngle > (PI / 2))
-	{
-		horizonAngle = (PI / 2);
-	}
+	camera.changeHorizonInRadian(rotY);
+	////done
+	//horizonAngle += rotY;
+	//if (horizonAngle < -(PI / 2))
+	//{
+	//	horizonAngle = -(PI / 2);
+	//}
+	//if (horizonAngle > (PI / 2))
+	//{
+	//	horizonAngle = (PI / 2);
+	//}
+	////done
+
 	//cout<< "horizonAngle2: " << horizonAngle*(180 / PI) << endl;
 	//update positions, dont let the cursor leave the window
 	if (x<=(midX/3) || x>=(midX * 1.5))
@@ -275,26 +289,30 @@ void keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 'w':
-		cameraX += lx*speed;
-		cameraZ += lz*speed;
+		camera.setForwardMovement();
+		//cameraX += lx*speed;
+		//cameraZ += lz*speed;
 		break;
 	case 's':
-		cameraX -= lx*speed;
-		cameraZ -= lz*speed;
+		camera.setBackwardMovement();
+		//cameraX -= lx*speed;
+		//cameraZ -= lz*speed;
 		break;
 	case 'd':
-		cameraX += cos(angle + (PI / 2))*speed;
-		cameraZ += sin(angle + (PI / 2))*speed;
+		camera.setRightMovement();
+		//cameraX += cos(angle + (PI / 2))*speed;
+		//cameraZ += sin(angle + (PI / 2))*speed;
 		break;
 	case 'a':
-		cameraX -= cos(angle + (PI / 2))*speed;
-		cameraZ -= sin(angle + (PI / 2))*speed;
+		camera.setLeftMovement();
+		//cameraX -= cos(angle + (PI / 2))*speed;
+		//cameraZ -= sin(angle + (PI / 2))*speed;
 		break;
 	case ' ':
-		cameraY += speed;
+		//cameraY += speed;
 		break;
 	case 'x':
-		cameraY -= speed;
+		//cameraY -= speed;
 		break;
 	case 27:
 		exit(0);
@@ -322,6 +340,7 @@ void specialFunctionKeys(int key, int x, int y)
 void initialize()
 {
 	cout << "Init ..." << endl;
+	
 	//create skysphere
 	skySphere = gluNewQuadric();
 	gluQuadricTexture(skySphere, GL_TRUE);
@@ -363,8 +382,8 @@ void initialize()
 
 	//Loadheightmap
 	heightMap = new HeightMapLoader("terrain6_256.png");
-	cameraX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
-	cameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
+	//cameraX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
+	//cameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
 
 	//Load 3D models
 	tree1 = new Tree("pine1");
@@ -410,6 +429,9 @@ void initialize()
 	//glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0);
+
+	//init cam, sets the current time
+	camera = Camera(heightMap);
 }
 
 /**
@@ -417,10 +439,6 @@ void initialize()
 */
 int main(int argc, char* argv[])
 {
-	//vector testing
-
-
-
 	cout << "Init GLUT ..." << endl;
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

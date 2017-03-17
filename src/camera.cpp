@@ -1,4 +1,6 @@
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
+#endif
 #include <math.h>
 #include "..\include\camera.hpp"
 
@@ -98,28 +100,33 @@ float Camera::getZ() const
 	return m_fCameraZ;
 }
 
+float Camera::getElapsedTime() const
+{
+	return m_fElapsedTime;
+}
+
 void Camera::move()
 {
-	float elapsedTime = getElapsedTime();
+	m_fElapsedTime = calcElapsedTime();
 	if (m_bMoveForward)
 	{
-		m_fCameraX += m_fDirectionX * m_fSpeed * elapsedTime;
-		m_fCameraZ += m_fDirectionZ * m_fSpeed * elapsedTime;
+		m_fCameraX += m_fDirectionX * m_fSpeed * m_fElapsedTime;
+		m_fCameraZ += m_fDirectionZ * m_fSpeed * m_fElapsedTime;
 	}
 	if (m_bMoveBackward)
 	{
-		m_fCameraX -= m_fDirectionX * m_fSpeed * elapsedTime;
-		m_fCameraZ -= m_fDirectionZ * m_fSpeed * elapsedTime;
+		m_fCameraX -= m_fDirectionX * m_fSpeed * m_fElapsedTime;
+		m_fCameraZ -= m_fDirectionZ * m_fSpeed * m_fElapsedTime;
 	}
 	if (m_bMoveRight)
 	{
-		m_fCameraX += cos(m_fRotationAngleRadian + M_PI_2) * m_fSpeed * elapsedTime;
-		m_fCameraZ += sin(m_fRotationAngleRadian + M_PI_2) * m_fSpeed * elapsedTime;
+		m_fCameraX += cos(m_fRotationAngleRadian + M_PI_2) * m_fSpeed * m_fElapsedTime;
+		m_fCameraZ += sin(m_fRotationAngleRadian + M_PI_2) * m_fSpeed * m_fElapsedTime;
 	}
 	if (m_bMoveLeft)
 	{
-		m_fCameraX -= cos(m_fRotationAngleRadian + M_PI_2) * m_fSpeed * elapsedTime;
-		m_fCameraZ -= sin(m_fRotationAngleRadian + M_PI_2) * m_fSpeed * elapsedTime;
+		m_fCameraX -= cos(m_fRotationAngleRadian + M_PI_2) * m_fSpeed * m_fElapsedTime;
+		m_fCameraZ -= sin(m_fRotationAngleRadian + M_PI_2) * m_fSpeed * m_fElapsedTime;
 	}
 }
 
@@ -128,7 +135,7 @@ float Camera::radianToAngle(float radian)
 	return radian * (180 / M_PI);
 }
 
-float Camera::getElapsedTime()
+float Camera::calcElapsedTime()
 {
 	float now = glutGet(GLUT_ELAPSED_TIME);
 	float elapsed = (now - m_fCurrTime) * 0.001f;

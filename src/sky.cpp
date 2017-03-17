@@ -1,3 +1,8 @@
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif
+
+#include <math.h>
 #include "../include/sky.hpp"
 
 Sky::Sky()
@@ -27,12 +32,12 @@ void Sky::initialize()
 	loadTextures();
 }
 
-void Sky::updateSky(float cameraX, float cameraY, float cameraZ)
+void Sky::updateSky(float cameraX, float cameraY, float cameraZ, float elapsedTime)
 {
 	glPushMatrix();
-	glTranslatef(cameraX, cameraY, cameraZ);
-	moveMoon();
+	moveMoon(elapsedTime);
 	drawMoon();
+	glTranslatef(cameraX, cameraY, cameraZ);
 	drawSky();
 	//reset position of the lightsource
 	glLightfv(GL_LIGHT1, GL_POSITION, m_LightPosition);
@@ -63,9 +68,8 @@ void Sky::drawMoon()
 	
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, m_MoonMaterial);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, m_MoonMaterial);
-	glMaterialfv(GL_FRONT, GL_SHININESS, m_Shininess);
 	glMaterialfv(GL_FRONT, GL_EMISSION, m_MoonEmissive);
-	gluSphere(m_pMoonSphere, 80.0f, 36, 72);
+	gluSphere(m_pMoonSphere, 30.0f, 36, 72);
 	glPopMatrix();
 
 }
@@ -78,15 +82,21 @@ void Sky::drawSky()
 	
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, m_SkyMaterial);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, m_SkyMaterial);
-	glMaterialfv(GL_FRONT, GL_SHININESS, m_Shininess);
 	glMaterialfv(GL_FRONT, GL_EMISSION, m_SkyEmissive);
-	glRotatef(45, 0, 0, 1);
 	gluQuadricOrientation(m_pSkySphere, GLU_INSIDE);
-	gluSphere(m_pSkySphere, 1000.0, 36, 72);
+	gluSphere(m_pSkySphere, 1500.0, 36, 72);
 	glPopMatrix();
 }
 
-void Sky::moveMoon()
+void Sky::moveMoon(float elapsedTime)
 {
-
+	m_fMoonCurvePosition += m_fMoonSpeed * elapsedTime;
+	if (m_fMoonCurvePosition > M_PI)
+	{
+		m_fMoonCurvePosition = 0.0f;
+	}
+	//y coordinate
+	m_LightPosition[1] = m_fSemiAxleY * sin(m_fMoonCurvePosition);
+	//z coordinate
+	m_LightPosition[2] = m_fSemiAxleX * cos(m_fMoonCurvePosition);
 }

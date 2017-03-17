@@ -28,6 +28,8 @@ int mouseX = 0, mouseY = 0;
 int midX=430, midY=320;
 //menu
 bool menu = false;
+//for flying around
+float setHeight = 0.f;
 
 void drawAxis(float nullX, float nullY, float nullZ)
 {
@@ -144,6 +146,7 @@ void display()
 	glLoadIdentity();
 
 	camera.updateCamera();
+	glTranslatef(0.f, setHeight, 0.f);
 
 	float scale = heightMap->getScale();
 	float maxHeight = heightMap->getMaxHeight();
@@ -152,7 +155,7 @@ void display()
 	heightMap->drawTerrain();
 
 	//drawSkybox();
-	pSky->updateSky(camera.getX(), camera.getY(), camera.getZ());
+	pSky->updateSky(camera.getX(), camera.getY(), camera.getZ(), camera.getElapsedTime());
 
 	int midMapX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
 	int midMapY = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
@@ -291,10 +294,10 @@ void keyboard(unsigned char key, int x, int y)
 		//cameraZ -= sin(angle + (PI / 2))*speed;
 		break;
 	case ' ':
-		//cameraY += speed;
+		setHeight += speed;
 		break;
 	case 'x':
-		//cameraY -= speed;
+		setHeight -= speed;
 		break;
 	case 27:
 		exit(0);

@@ -31,6 +31,8 @@ public:
 	float getY() const;
 	/// returns the Z coordinate of the camera position
 	float getZ() const;
+	/// returns elapsed time
+	float getElapsedTime() const;
 private:
 	/// rotation in the Y axis
 	float m_fRotationAngleRadian = 0.0f;
@@ -48,9 +50,10 @@ private:
 		  m_fDirectionZ = -1.0f;
 	
 	/// speed of camera
-	float m_fSpeed = 5.f;
+	float m_fSpeed = 20.f;
 
 	float m_fCurrTime = 0.f;
+	float m_fElapsedTime = 0.f;
 
 	/// movements
 	bool m_bMoveForward = false,
@@ -62,5 +65,5 @@ private:
 
 	void move();
 	float radianToAngle(float radian);
-	float getElapsedTime();
+	float calcElapsedTime();
 };

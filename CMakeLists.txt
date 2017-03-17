@@ -12,6 +12,9 @@ set(SOURCES 	src/main.cpp
 		src/object.cpp
 		src/heightmap.cpp
 		src/camera.cpp
+		src/sky.cpp
+		src/forest.cpp
+		src/environment.cpp
 
 		include/buildSnowman.hpp
 		include/model.hpp
@@ -19,7 +22,10 @@ set(SOURCES 	src/main.cpp
 		include/texture.hpp
 		include/object.hpp
 		include/heightmap.hpp
-		include/camera.hpp)
+		include/camera.hpp
+		include/sky.hpp
+		include/forest.hpp
+		include/environment.hpp)
 
 add_executable(House_in_the_Forest ${SOURCES})
 

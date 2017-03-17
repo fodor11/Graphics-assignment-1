@@ -17,16 +17,6 @@
 using namespace std;
 
 //Global variables
-//rotation in the Y axis
-//float angle = 0.0f;
-////position of the camera
-//float cameraX = 0.0f, cameraY = 0.0f, cameraZ = 0.0f;
-////"height" of the camera
-//float cameraHeight = 2.f;
-////camera's direction (vector)
-//float lx = 0.0f, lz = -1.0f;
-////horizon angle in radian
-//float horizonAngle = 0.0;
 //camera object
 Camera camera;
 //mouse position

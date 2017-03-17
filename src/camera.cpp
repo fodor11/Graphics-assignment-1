@@ -83,6 +83,21 @@ void Camera::changeHorizonInRadian(float addHorizonAngle)
 	}
 }
 
+float Camera::getX() const
+{
+	return m_fCameraX;
+}
+
+float Camera::getY() const
+{
+	return m_fCameraY;
+}
+
+float Camera::getZ() const
+{
+	return m_fCameraZ;
+}
+
 void Camera::move()
 {
 	float elapsedTime = getElapsedTime();

@@ -25,7 +25,12 @@ public:
 	void addRotationInRadian(float addRotationAngle);
 	/// adds the horizontal angle to the current horizontal angle
 	void changeHorizonInRadian(float addHorizonAngle);
-
+	/// returns the X coordinate of the camera position
+	float getX() const;
+	/// returns the Y coordinate of the camera position
+	float getY() const;
+	/// returns the Z coordinate of the camera position
+	float getZ() const;
 private:
 	/// rotation in the Y axis
 	float m_fRotationAngleRadian = 0.0f;

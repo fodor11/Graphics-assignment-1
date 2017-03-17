@@ -8,6 +8,7 @@
 #include "../include/object.hpp"
 #include "../include/heightmap.hpp"
 #include "../include/camera.hpp"
+#include "../include/sky.hpp"
 
 #define PI 3.14159265
 #define RadToAngle 180/PI
@@ -19,6 +20,8 @@ using namespace std;
 //Global variables
 //camera object
 Camera camera;
+//sky object
+Sky *pSky;
 //mouse position
 int mouseX = 0, mouseY = 0;
 //middle of the screen
@@ -135,7 +138,6 @@ void printFps()
 GLenum error;
 void display()
 {
-	//cout << "display" << endl;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	//reset transformations
@@ -143,21 +145,14 @@ void display()
 
 	camera.updateCamera();
 
-	//set horizon (+change from radius to angle)
-	//glRotatef(horizonAngle*RadToAngle, 1, 0, 0);
-	////set camera height
 	float scale = heightMap->getScale();
 	float maxHeight = heightMap->getMaxHeight();
-	////cameraY = heightMap->getHeight(cameraX / scale, cameraZ / scale) * maxHeight + cameraHeight;
-	////set the camera
-	//gluLookAt(	cameraX, cameraY, cameraZ,              //camera position
-	//			cameraX + lx, cameraY, cameraZ + lz,    //look at point
-	//			0.0f, 0.1f, 0.0f);                      //up vector
-	
+
 	//Draw ground
 	heightMap->drawTerrain();
 
-	drawSkybox();
+	//drawSkybox();
+	pSky->updateSky(camera.getX(), camera.getY(), camera.getZ());
 
 	int midMapX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
 	int midMapY = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
@@ -181,9 +176,6 @@ void display()
 	
 	glPopMatrix();
 
-	//reset position of the lightsource
-	glLightfv(GL_LIGHT1, GL_POSITION, moon_position);
-	
 	printFps();
 
 	//check errors	
@@ -331,43 +323,9 @@ void initialize()
 {
 	cout << "Init ..." << endl;
 	
-	//create skysphere
-	skySphere = gluNewQuadric();
-	gluQuadricTexture(skySphere, GL_TRUE);
+	pSky = new Sky();
+	pSky->initialize();
 
-
-	//set up moon (sphere + light)
-	moon = gluNewQuadric();
-	gluQuadricTexture(moon, GL_TRUE);
-	GLfloat moonLight_ambient[] = { 1,1,1,1.0 };
-	GLfloat moonLight_diffuse[] = { 1,1,1,1.0 };
-	GLfloat moonLight_specular[] = { 1,1,1,1.0 };
-	glLightfv(GL_LIGHT1, GL_POSITION, moon_position);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, moonLight_ambient);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, moonLight_diffuse);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, moonLight_specular);
-	glEnable(GL_LIGHT1);
-	//set up a light source
-	//glLightfv(GL_LIGHT0, GL_POSITION, light_position);	
-	//glEnable(GL_LIGHT0);
-
-	glEnable(GL_LIGHTING);
-
-	//Load textures
-	cout << "Loading textures..." << endl;
-	TextureLoader *txtrLoaderObj = new TextureLoader();
-	//sky
-	txtrLoaderObj->loadTexture("sky5.png");
-	skytxtrNr = txtrLoaderObj->textureID();
-	//delete skyBoxTxtr;
-	//moon
-	txtrLoaderObj->loadMipMappedTexture("moon2.jpg");
-	moontxtrNr = txtrLoaderObj->textureID();
-	//ground
-	//txtrLoaderObj->loadMipMappedTexture("allTerrainTexture.png");
-	//groundTxtrNr = txtrLoaderObj->textureID();
-
-	delete txtrLoaderObj;
 	glEnable(GL_TEXTURE_2D);
 
 	//Loadheightmap
@@ -377,9 +335,6 @@ void initialize()
 
 	//Load 3D models
 	tree1 = new Tree("pine1");
-	//ObjectLoader* objLoader = new ObjectLoader();
-	//objLoader->loadObjFile("pine1.obj");
-	//objLoader->~ObjectLoader();
 
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_NORMALIZE);

@@ -18,9 +18,9 @@ void Sky::initialize()
 	//set up moon (sphere + light)
 	m_pMoonSphere = gluNewQuadric();
 	gluQuadricTexture(m_pMoonSphere, GL_TRUE);
-	GLfloat moonLight_ambient[] = { 1,1,1,1.0 };
-	GLfloat moonLight_diffuse[] = { 1,1,1,1.0 };
-	GLfloat moonLight_specular[] = { 1,1,1,1.0 };
+	GLfloat moonLight_ambient[] = { 0.5f, 0.5f, 0.6f, 1.0f };
+	GLfloat moonLight_diffuse[] = { 0.5f, 0.5f, 0.6f, 1.0f };
+	GLfloat moonLight_specular[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	glLightfv(GL_LIGHT1, GL_POSITION, m_LightPosition);
 	glLightfv(GL_LIGHT1, GL_AMBIENT, moonLight_ambient);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, moonLight_diffuse);
@@ -35,7 +35,7 @@ void Sky::initialize()
 void Sky::updateSky(float cameraX, float cameraY, float cameraZ, float elapsedTime)
 {
 	glPushMatrix();
-	moveMoon(elapsedTime);
+	//moveMoon(elapsedTime);
 	drawMoon();
 	glTranslatef(cameraX, cameraY, cameraZ);
 	drawSky();
@@ -57,14 +57,42 @@ void Sky::loadTextures()
 	delete txtrLoaderObj;
 }
 
+/// Temporary
+void drawAxisB(float nullX, float nullY, float nullZ)
+{
+	glPushMatrix();
+	glDisable(GL_TEXTURE_2D);
+	glTranslatef(nullX, nullY, nullZ);
+	glLineWidth(10.0f);
+	glBegin(GL_LINES);
+	//x axis RED
+	GLfloat diffuse_and_ambient[] = { 1,0,0,1 };
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse_and_ambient);
+	glColor3f(1.0f, 0.f, 0.f);  glVertex3f(0.f, 0.f, 0.f);	glVertex3f(3.0f, 0.f, 0.f);
+	//y axis GREEN
+	diffuse_and_ambient[0] = 0;
+	diffuse_and_ambient[1] = 1;
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse_and_ambient);
+	glColor3f(0.0f, 1.0f, 0.f);	glVertex3f(0.f, 0.f, 0.f);	glVertex3f(0.0f, 3.0f, 0.f);
+	//z axis BLUE
+	diffuse_and_ambient[1] = 0;
+	diffuse_and_ambient[2] = 1;
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse_and_ambient);
+	glColor3f(0.0f, 0.f, 1.f);	glVertex3f(0.f, 0.f, 0.f);	glVertex3f(0.0f, 0.f, 3.f);
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+	glPopMatrix();
+}
+/// Temporary
+
 void Sky::drawMoon()
-{//moon
+{
 	glBindTexture(GL_TEXTURE_2D, m_uiMoonTextureId);
 	glPushMatrix();
 	glTranslatef(m_LightPosition[0], m_LightPosition[1], m_LightPosition[2]);
-	glRotatef(50, 0, 1, 0);
-	glRotatef(-35.f, 1.f, 0.f, 0.f);
+	glRotatef(-75.f, 0.f, 1.f, 0.f);
 	glRotatef(45.f, 0.f, 0.f, 1.f);
+	glRotatef(45.f, 1.f, 0.f, 0.f);
 	
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, m_MoonMaterial);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, m_MoonMaterial);
@@ -76,7 +104,6 @@ void Sky::drawMoon()
 
 void Sky::drawSky()
 {
-	//sky
 	glBindTexture(GL_TEXTURE_2D, m_uiSkyTextureId);
 	glPushMatrix();
 	

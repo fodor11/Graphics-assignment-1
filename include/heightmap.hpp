@@ -28,10 +28,10 @@ private:
 	int m_channels;
 	GLuint m_groundDispList;
 
-	float m_highestPoint=0.4;
-	float m_lowestPoint=0.4;
-	float m_wettestPoint = 0.4;
-	float m_dryestPoint = 0.4;
+	float m_highestPoint = 0.4f;
+	float m_lowestPoint = 0.4f;
+	float m_wettestPoint = 0.4f;
+	float m_dryestPoint = 0.4f;
 
 	float *m_pHeightValues;
 	vec3f *m_pVertexNormals;

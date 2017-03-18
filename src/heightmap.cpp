@@ -2,9 +2,6 @@
 #include "../include/heightmap.hpp"
 #include <iostream>
 
-/*
-* Height map loader
-*/
 void HeightMapLoader::getHeightValues()
 {
 	m_pHeightValues = new float[m_width * m_height];
@@ -40,7 +37,7 @@ void HeightMapLoader::determineColors()
 		//}
 		float realtiveHeight = (m_pHeightValues[i] - m_lowestPoint) / (m_highestPoint - m_lowestPoint);
 		float relativeMoisture = (m_pMoisture[i] - m_dryestPoint) / (m_wettestPoint - m_dryestPoint);
-		m_pColors[i] = biome->getPixelColor(relativeMoisture, realtiveHeight)*lightness;
+		m_pColors[i] = biome->getMoistureColor(relativeMoisture, realtiveHeight)*lightness;
 	}
 }
 
@@ -60,7 +57,7 @@ void HeightMapLoader::createDisplayList()
 	glBindTexture(GL_TEXTURE_2D, texId);
 
 	GLfloat ground_specular[] = { 0.f, 0.f, 0.f, 1.0f };
-	GLfloat ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	GLfloat ambient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	GLfloat diffuse[] = { 0.f, 0.f, 0.f, 1.0f };
 	glMaterialfv(GL_FRONT, GL_SPECULAR, ground_specular);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);

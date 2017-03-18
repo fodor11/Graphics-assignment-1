@@ -9,6 +9,7 @@
 #include "../include/heightmap.hpp"
 #include "../include/camera.hpp"
 #include "../include/sky.hpp"
+#include "../include/forest.hpp"
 
 #define PI 3.14159265
 #define RadToAngle 180/PI
@@ -98,6 +99,8 @@ void drawSkybox()
 
 HeightMapLoader *heightMap;
 Tree *tree1;
+Tree *tree2;
+Tree *tree3;
 
 int time = 0;
 double calcFps() 
@@ -138,6 +141,7 @@ void printFps()
 }
 
 GLenum error;
+Forest* forest;
 void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -163,21 +167,42 @@ void display()
 	drawAxis(midMapX, heightMap->getHeight(midMapX, midMapY) * maxHeight, midMapY);
 
 	//draw Trees
-	for (int i = midMapX -30; i < midMapX + 30; i+=6)
+	//for (int i = midMapX -30; i < midMapX + 30; i+=6)
+	//{
+	//	for (int j = midMapY -30; j < midMapY + 30; j+=6)
+	//	{
+	//		glPushMatrix();
+	//		glTranslatef(i, heightMap->getHeight(i / scale, j / scale) * maxHeight, j);
+	//		//tree1->drawBillBoard();
+	//		glPopMatrix();
+	//	}
+	//}
+	std::map<std::string, std::vector<vec3f>>& positions = *forest->getPositionsMap();
+	for (int j = 0; j < positions["tree1"].size(); j++)
 	{
-		for (int j = midMapY -30; j < midMapY + 30; j+=6)
-		{
-			glPushMatrix();
-			glTranslatef(i, heightMap->getHeight(i / scale, j / scale) * maxHeight, j);
-			tree1->drawBillBoard();
-			glPopMatrix();
-		}
+		glPushMatrix();
+		glTranslatef(positions["tree1"][j][0], positions["tree1"][j][1], positions["tree1"][j][2]);
+		tree1->drawBillBoard();
+		glPopMatrix();
 	}
-	glPushMatrix();
+	for (int j = 0; j < positions["tree2"].size(); j++)
+	{
+		glPushMatrix();
+		glTranslatef(positions["tree2"][j][0], positions["tree2"][j][1], positions["tree2"][j][2]);
+		tree2->drawBillBoard();
+		glPopMatrix();
+	}
+	for (int j = 0; j < positions["tree3"].size(); j++)
+	{
+		glPushMatrix();
+		glTranslatef(positions["tree3"][j][0], positions["tree3"][j][1], positions["tree3"][j][2]);
+		tree3->drawBillBoard();
+		glPopMatrix();
+	}
+	/*glPushMatrix();
 	glTranslatef(midMapX, heightMap->getHeight(midMapX / scale, midMapY / scale) * maxHeight, midMapY);
 	tree1->drawTree();
-	
-	glPopMatrix();
+	glPopMatrix();*/
 
 	printFps();
 
@@ -294,10 +319,10 @@ void keyboard(unsigned char key, int x, int y)
 		//cameraZ -= sin(angle + (PI / 2))*speed;
 		break;
 	case ' ':
-		setHeight += speed;
+		setHeight -= speed;
 		break;
 	case 'x':
-		setHeight -= speed;
+		setHeight += speed;
 		break;
 	case 27:
 		exit(0);
@@ -336,8 +361,14 @@ void initialize()
 	//cameraX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
 	//cameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
 
+	//FOREST
+	forest = new Forest("population.png");
+	forest->initialize(heightMap);
+
 	//Load 3D models
 	tree1 = new Tree("pine1");
+	tree2 = new Tree("pine2");
+	tree3 = new Tree("pine3");
 
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_NORMALIZE);

@@ -19,7 +19,11 @@ public:
 	unsigned int textureID() const;
 
 	void loadImage(std::string filename);
-	vec3f getPixelColor(float moisture, float height);
+	vec3f getMoistureColor(float moisture, float height);
+	vec3f getPixelColor(int x, int y);
+
+	int getWidth() const;
+	int getHeight() const;
 
 private:
 	unsigned int m_textureId;

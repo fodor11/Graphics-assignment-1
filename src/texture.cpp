@@ -35,7 +35,7 @@ void TextureLoader::loadImage(std::string filename)
 		std::cout << m_fileName.c_str() << " loaded!" << std::endl;
 }
 
-vec3f TextureLoader::getPixelColor(float moisture, float height)
+vec3f TextureLoader::getMoistureColor(float moisture, float height)
 {
 	if (m_pixel != nullptr && moisture >= 0 && height >= 0 && moisture <= 1.00001 && height <= 1.00001)
 	{
@@ -48,6 +48,30 @@ vec3f TextureLoader::getPixelColor(float moisture, float height)
 		return vec3f(r / 255, g / 255, b / 255);
 	}
 	else return vec3f(1, 0, 0);
+}
+
+vec3f TextureLoader::getPixelColor(int x, int y)
+{
+	if (m_pixel != nullptr && x >= 0 && y >= 0 && x < m_width && y < m_height)
+	{
+		y = (m_height - 1) - y;
+		int index = y*m_width + x;
+		float r = m_pixel[index][0];
+		float g = m_pixel[index][1];
+		float b = m_pixel[index][2];
+		return vec3f(r / 255, g / 255, b / 255);
+	}
+	else return vec3f(0, 0, 0);
+}
+
+int TextureLoader::getWidth() const
+{
+	return m_width;
+}
+
+int TextureLoader::getHeight() const
+{
+	return m_height;
 }
 
 unsigned int TextureLoader::textureID() const

@@ -10,6 +10,8 @@
 #include "../include/camera.hpp"
 #include "../include/sky.hpp"
 #include "../include/forest.hpp"
+#include "../include/environment.hpp"
+
 
 #define PI 3.14159265
 #define RadToAngle 180/PI
@@ -21,8 +23,8 @@ using namespace std;
 //Global variables
 //camera object
 Camera camera;
-//sky object
-Sky *pSky;
+//environment
+Environment* environment;
 //mouse position
 int mouseX = 0, mouseY = 0;
 //middle of the screen
@@ -58,49 +60,7 @@ void drawAxis(float nullX, float nullY, float nullZ)
 	glPopMatrix();
 }
 
-unsigned int skytxtrNr = 0;
-GLUquadric *skySphere;
-unsigned int moontxtrNr = 0;
-GLUquadric *moon;
-GLfloat moon_position[] = { -500, 450, 120 , 1};
-void drawSkybox()
-{
-	//moon
-	glBindTexture(GL_TEXTURE_2D, moontxtrNr);
-	glPushMatrix();	
-		glTranslatef(moon_position[0], moon_position[1], moon_position[2]);
-		glRotatef(50, 0, 1, 0);
-		glRotatef(-35.f, 1.f, 0.f, 0.f);
-		glRotatef(45.f, 0.f, 0.f, 1.f);
-		GLfloat moon_emissive[] = { 1,1,0.75f,1.0 };
-		GLfloat moon_material[] = { 0,0,0,1 };
-		GLfloat shininess[] = { 0 };
-		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, moon_material);
-		glMaterialfv(GL_FRONT, GL_SPECULAR, moon_material);
-		glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
-		glMaterialfv(GL_FRONT, GL_EMISSION, moon_emissive);
-		gluSphere(moon, 80.0f, 36, 72);
-	glPopMatrix();
-
-	//sky
-	glBindTexture(GL_TEXTURE_2D, skytxtrNr);
-	glPushMatrix();
-		GLfloat sky_material[] = { 1,1,1,1 };
-		GLfloat sky_emissive[] = { 0,0,0,1 };
-		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, sky_material);
-		glMaterialfv(GL_FRONT, GL_SPECULAR, sky_material);
-		glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
-		glMaterialfv(GL_FRONT, GL_EMISSION, sky_emissive);
-		glRotatef(45, 0, 0, 1);
-		gluQuadricOrientation(skySphere, GLU_INSIDE);
-		gluSphere(skySphere, 1000.0, 36, 72);
-	glPopMatrix();
-}
-
 HeightMapLoader *heightMap;
-Tree *tree1;
-Tree *tree2;
-Tree *tree3;
 
 int time = 0;
 double calcFps() 
@@ -141,7 +101,6 @@ void printFps()
 }
 
 GLenum error;
-Forest* forest;
 void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -158,51 +117,12 @@ void display()
 	//Draw ground
 	heightMap->drawTerrain();
 
-	//drawSkybox();
-	pSky->updateSky(camera.getX(), camera.getY(), camera.getZ(), camera.getElapsedTime());
+	environment->update();
 
-	int midMapX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
-	int midMapY = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
+	//int midMapX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
+	//int midMapY = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
+	//drawAxis(midMapX, heightMap->getHeight(midMapX, midMapY) * maxHeight, midMapY);
 
-	drawAxis(midMapX, heightMap->getHeight(midMapX, midMapY) * maxHeight, midMapY);
-
-	//draw Trees
-	//for (int i = midMapX -30; i < midMapX + 30; i+=6)
-	//{
-	//	for (int j = midMapY -30; j < midMapY + 30; j+=6)
-	//	{
-	//		glPushMatrix();
-	//		glTranslatef(i, heightMap->getHeight(i / scale, j / scale) * maxHeight, j);
-	//		//tree1->drawBillBoard();
-	//		glPopMatrix();
-	//	}
-	//}
-	std::map<std::string, std::vector<vec3f>>& positions = *forest->getPositionsMap();
-	for (int j = 0; j < positions["tree1"].size(); j++)
-	{
-		glPushMatrix();
-		glTranslatef(positions["tree1"][j][0], positions["tree1"][j][1], positions["tree1"][j][2]);
-		tree1->drawBillBoard();
-		glPopMatrix();
-	}
-	for (int j = 0; j < positions["tree2"].size(); j++)
-	{
-		glPushMatrix();
-		glTranslatef(positions["tree2"][j][0], positions["tree2"][j][1], positions["tree2"][j][2]);
-		tree2->drawBillBoard();
-		glPopMatrix();
-	}
-	for (int j = 0; j < positions["tree3"].size(); j++)
-	{
-		glPushMatrix();
-		glTranslatef(positions["tree3"][j][0], positions["tree3"][j][1], positions["tree3"][j][2]);
-		tree3->drawBillBoard();
-		glPopMatrix();
-	}
-	/*glPushMatrix();
-	glTranslatef(midMapX, heightMap->getHeight(midMapX / scale, midMapY / scale) * maxHeight, midMapY);
-	tree1->drawTree();
-	glPopMatrix();*/
 
 	printFps();
 
@@ -351,24 +271,27 @@ void initialize()
 {
 	cout << "Init ..." << endl;
 	
-	pSky = new Sky();
-	pSky->initialize();
+	/*pSky = new Sky();
+	pSky->initialize();*/
 
 	glEnable(GL_TEXTURE_2D);
 
 	//Loadheightmap
 	heightMap = new HeightMapLoader("terrain6_256.png");
-	//cameraX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
-	//cameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
+	//init cam, sets the current time
+	camera = Camera(heightMap);
+	//set up environment
+	environment = new Environment();
+	environment->initialize(heightMap, &camera);
 
-	//FOREST
-	forest = new Forest("population.png");
-	forest->initialize(heightMap);
+	////FOREST
+	//forest = new Forest("population.png");
+	//forest->initialize(heightMap);
 
-	//Load 3D models
-	tree1 = new Tree("pine1");
-	tree2 = new Tree("pine2");
-	tree3 = new Tree("pine3");
+	////Load 3D models
+	//tree1 = new Tree("pine1");
+	//tree2 = new Tree("pine2");
+	//tree3 = new Tree("pine3");
 
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_NORMALIZE);
@@ -408,9 +331,6 @@ void initialize()
 	//glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0);
-
-	//init cam, sets the current time
-	camera = Camera(heightMap);
 }
 
 /**

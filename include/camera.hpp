@@ -50,7 +50,7 @@ private:
 		  m_fDirectionZ = -1.0f;
 	
 	/// speed of camera
-	float m_fSpeed = 20.f;
+	float m_fSpeed = 5.f;
 
 	float m_fCurrTime = 0.f;
 	float m_fElapsedTime = 0.f;

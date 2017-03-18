@@ -68,7 +68,7 @@ void Tree::loadObjectDispList()
 			GLuint textureId = loadTexture(map->first);
 			glBindTexture(GL_TEXTURE_2D, textureId);
 			//std::cout << "bound texture: " << map->first << endl;
-			std::vector<Face> curr_faceList = map->second;
+			std::vector<Face>& curr_faceList = map->second;
 			for (int i = 0; i < curr_faceList.size(); i++)
 			{
 				face = curr_faceList[i];
@@ -117,8 +117,8 @@ void Tree::loadBillBoardDispList()
 	glBindTexture(GL_TEXTURE_2D, m_textures.back());
 
 	GLfloat specular[] = { 0.f, 0.f, 0.f, 1.0f };
-	GLfloat ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-	GLfloat diffuse[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	GLfloat ambient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	GLfloat diffuse[] = { 0.3f, 0.3f, 0.3f, 1.0f };
 	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);

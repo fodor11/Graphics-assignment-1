@@ -107,7 +107,10 @@ float Camera::getElapsedTime() const
 
 void Camera::move()
 {
-	m_fElapsedTime = calcElapsedTime();
+	float prevTime = m_fElapsedTime;
+	// smoothes movement in case of unstable fps
+	m_fElapsedTime = (prevTime + calcElapsedTime()) * 0.5f;
+
 	if (m_bMoveForward)
 	{
 		m_fCameraX += m_fDirectionX * m_fSpeed * m_fElapsedTime;

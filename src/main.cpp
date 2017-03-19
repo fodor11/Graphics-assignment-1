@@ -220,29 +220,35 @@ void keyboard(unsigned char key, int x, int y)
 	{
 	case 'w':
 		camera.setForwardMovement();
-		//cameraX += lx*speed;
-		//cameraZ += lz*speed;
 		break;
 	case 's':
 		camera.setBackwardMovement();
-		//cameraX -= lx*speed;
-		//cameraZ -= lz*speed;
 		break;
 	case 'd':
 		camera.setRightMovement();
-		//cameraX += cos(angle + (PI / 2))*speed;
-		//cameraZ += sin(angle + (PI / 2))*speed;
 		break;
 	case 'a':
 		camera.setLeftMovement();
-		//cameraX -= cos(angle + (PI / 2))*speed;
-		//cameraZ -= sin(angle + (PI / 2))*speed;
 		break;
 	case ' ':
 		setHeight -= speed;
 		break;
 	case 'x':
 		setHeight += speed;
+		break;
+	case 43:
+		// + key
+		environment->changeAmbientLight(0.1f);
+		break;
+	case 45:
+		// - key
+		environment->changeAmbientLight(-0.1f);
+		break;
+	case 'f':
+		environment->toggleFog();
+		break;
+	case 'm':
+		environment->toggleMoonlight();
 		break;
 	case 27:
 		exit(0);
@@ -271,9 +277,6 @@ void initialize()
 {
 	cout << "Init ..." << endl;
 	
-	/*pSky = new Sky();
-	pSky->initialize();*/
-
 	glEnable(GL_TEXTURE_2D);
 
 	//Loadheightmap
@@ -284,42 +287,18 @@ void initialize()
 	environment = new Environment();
 	environment->initialize(heightMap, &camera);
 
-	////FOREST
-	//forest = new Forest("population.png");
-	//forest->initialize(heightMap);
-
-	////Load 3D models
-	//tree1 = new Tree("pine1");
-	//tree2 = new Tree("pine2");
-	//tree3 = new Tree("pine3");
-
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_AUTO_NORMAL);
 	//glEnable(GL_CULL_FACE);
 
 	//Alpha functions
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.5f);
-
-	//set up fog
-	GLfloat fogColor[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
-	//glEnable(GL_FOG);
-	glFogf(GL_FOG_MODE, GL_LINEAR);
-	glFogfv(GL_FOG_COLOR, fogColor);
-	glFogf(GL_FOG_DENSITY, 0.75);
-	glFogf(GL_FOG_START, 1.0);
-	glFogf(GL_FOG_END, 1300.0);
-	glHint(GL_FOG_HINT, GL_DONT_CARE);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-
-	//Light model setup
-	float light_tmp = 0.1;
-	GLfloat lmodel_ambient[] = { light_tmp, light_tmp, light_tmp, 1.0 }; //amount of light anywhere
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
 
 	glMatrixMode(GL_PROJECTION);
 
@@ -328,7 +307,6 @@ void initialize()
 	//hide cursor
 	glutSetCursor(GLUT_CURSOR_NONE);
 
-	//glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0);
 }
@@ -356,8 +334,8 @@ int main(int argc, char* argv[])
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutMouseFunc(mouseHandler);
-	//glutPassiveMotionFunc(motionHandler);
-	glutMotionFunc(motionHandler);
+	glutPassiveMotionFunc(motionHandler);
+	//glutMotionFunc(motionHandler);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(specialFunctionKeys);
 	glutIdleFunc(display);

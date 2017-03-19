@@ -118,7 +118,7 @@ void Tree::loadBillBoardDispList()
 
 	GLfloat specular[] = { 0.f, 0.f, 0.f, 1.0f };
 	GLfloat ambient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	GLfloat diffuse[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+	GLfloat diffuse[] = { 0.13f, 0.13f, 0.13f, 1.0f };
 	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);

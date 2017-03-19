@@ -18,10 +18,23 @@ void Environment::initialize(HeightMapLoader* heightMap, Camera* camera)
 	tree1 = new Tree(tree1FileName);
 	tree2 = new Tree(tree2FileName);
 	tree3 = new Tree(tree3FileName);
+
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
+
+	//set up fog
+	GLfloat fogColor[4] = { 0.12f, 0.12f, 0.12f, 1.0f };
+	glFogf(GL_FOG_MODE, GL_EXP);
+	glFogfv(GL_FOG_COLOR, fogColor);
+	glFogf(GL_FOG_DENSITY, 0.03f);
+	glFogf(GL_FOG_START, 1.0f);
+	glFogf(GL_FOG_END, 150.0f);
+	glHint(GL_FOG_HINT, GL_DONT_CARE);
 }
 
 void Environment::update()
 {
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
+
 	pSky->updateSky(m_pCamera->getX(), m_pCamera->getY(), m_pCamera->getZ(), m_pCamera->getElapsedTime());
 
 	std::map<std::string, std::vector<vec3f>>& positions = *forest->getPositionsMap();
@@ -40,6 +53,41 @@ void Environment::update()
 			glPopMatrix();
 		}
 	}
+}
+
+void Environment::changeAmbientLight(float value)
+{
+	light_tmp += value;
+	if (light_tmp > 1.0f)
+	{
+		light_tmp = 1.0f;
+	}
+	else if (light_tmp < 0.0f)
+	{
+		light_tmp = 0.0f;
+	}
+	lmodel_ambient[0] = light_tmp;
+	lmodel_ambient[1] = light_tmp;
+	lmodel_ambient[2] = light_tmp;
+}
+
+void Environment::toggleFog()
+{
+	if (m_bFog)
+	{
+		glDisable(GL_FOG);
+		m_bFog = false;
+	}
+	else
+	{
+		glEnable(GL_FOG);
+		m_bFog = true;
+	}
+}
+
+void Environment::toggleMoonlight()
+{
+	pSky->toggleMoonLight();
 }
 
 float Environment::calcDistanceToCamera(vec3f position)

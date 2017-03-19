@@ -9,6 +9,10 @@ Sky::Sky()
 {
 }
 
+Sky::~Sky()
+{
+}
+
 void Sky::initialize()
 {
 	//create skysphere
@@ -21,11 +25,11 @@ void Sky::initialize()
 	GLfloat moonLight_ambient[] = { 0.5f, 0.5f, 0.6f, 1.0f };
 	GLfloat moonLight_diffuse[] = { 0.5f, 0.5f, 0.6f, 1.0f };
 	GLfloat moonLight_specular[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-	glLightfv(GL_LIGHT1, GL_POSITION, m_LightPosition);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, moonLight_ambient);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, moonLight_diffuse);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, moonLight_specular);
-	glEnable(GL_LIGHT1);
+	glLightfv(m_MoonLightId, GL_POSITION, m_LightPosition);
+	glLightfv(m_MoonLightId, GL_AMBIENT, moonLight_ambient);
+	glLightfv(m_MoonLightId, GL_DIFFUSE, moonLight_diffuse);
+	glLightfv(m_MoonLightId, GL_SPECULAR, moonLight_specular);
+	glEnable(m_MoonLightId);
 
 	glEnable(GL_LIGHTING);
 
@@ -40,8 +44,22 @@ void Sky::updateSky(float cameraX, float cameraY, float cameraZ, float elapsedTi
 	glTranslatef(cameraX, cameraY, cameraZ);
 	drawSky();
 	//reset position of the lightsource
-	glLightfv(GL_LIGHT1, GL_POSITION, m_LightPosition);
+	glLightfv(m_MoonLightId, GL_POSITION, m_LightPosition);
 	glPopMatrix();
+}
+
+void Sky::toggleMoonLight()
+{
+	if (m_bMoonlight)
+	{
+		glDisable(m_MoonLightId);
+		m_bMoonlight = false;
+	}
+	else
+	{
+		glEnable(m_MoonLightId);
+		m_bMoonlight = true;
+	}
 }
 
 void Sky::loadTextures()

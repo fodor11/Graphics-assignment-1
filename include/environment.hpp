@@ -13,6 +13,12 @@ public:
 	void initialize(HeightMapLoader* heightMap, Camera* camera);
 	/// draws everything
 	void update();
+	/// adds the value to the overall lightness
+	void changeAmbientLight(float value);
+	/// toggles fog on and off
+	void toggleFog();
+	/// toggles moonlight on and off
+	void toggleMoonlight();
 private:
 	Sky *pSky;
 	Tree *tree1;
@@ -23,7 +29,12 @@ private:
 	std::string tree3FileName = "pine3";
 	Forest* forest;
 	std::string forestFileName = "population.png";
+
 	float visualRange = 6.5f;
+	bool m_bFog = false;
+
+	float light_tmp = 0.1;
+	GLfloat lmodel_ambient[4] = { light_tmp, light_tmp, light_tmp, 1.0 };
 
 	/// pointers to foreign objects
 	HeightMapLoader* heightmap;

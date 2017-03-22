@@ -9,6 +9,8 @@ void Environment::initialize(HeightMapLoader* heightMap, Camera* camera)
 	m_pCamera = camera;
 	heightmap = heightMap;
 
+	m_fog = new DynamicFog(camera);
+
 	pSky = new Sky();
 	pSky->initialize();
 
@@ -21,19 +23,13 @@ void Environment::initialize(HeightMapLoader* heightMap, Camera* camera)
 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
 
-	//set up fog
-	GLfloat fogColor[4] = { 0.12f, 0.12f, 0.12f, 1.0f };
-	glFogf(GL_FOG_MODE, GL_EXP);
-	glFogfv(GL_FOG_COLOR, fogColor);
-	glFogf(GL_FOG_DENSITY, 0.03f);
-	glFogf(GL_FOG_START, 1.0f);
-	glFogf(GL_FOG_END, 150.0f);
-	glHint(GL_FOG_HINT, GL_DONT_CARE);
 }
 
 void Environment::update()
 {
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
+
+	m_fog->updateFog();
 
 	pSky->updateSky(m_pCamera->getX(), m_pCamera->getY(), m_pCamera->getZ(), m_pCamera->getElapsedTime());
 
@@ -71,23 +67,14 @@ void Environment::changeAmbientLight(float value)
 	lmodel_ambient[2] = light_tmp;
 }
 
-void Environment::toggleFog()
-{
-	if (m_bFog)
-	{
-		glDisable(GL_FOG);
-		m_bFog = false;
-	}
-	else
-	{
-		glEnable(GL_FOG);
-		m_bFog = true;
-	}
-}
-
 void Environment::toggleMoonlight()
 {
 	pSky->toggleMoonLight();
+}
+
+void Environment::toggleFog()
+{
+	m_fog->toggleFog();
 }
 
 float Environment::calcDistanceToCamera(vec3f position)

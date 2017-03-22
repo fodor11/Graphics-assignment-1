@@ -3,6 +3,7 @@
 #include "object.hpp"
 #include "forest.hpp"
 #include "camera.hpp"
+#include "dynamicFog.hpp"
 
 class Environment
 {
@@ -15,11 +16,12 @@ public:
 	void update();
 	/// adds the value to the overall lightness
 	void changeAmbientLight(float value);
-	/// toggles fog on and off
-	void toggleFog();
 	/// toggles moonlight on and off
 	void toggleMoonlight();
+	/// toggles fog on and off
+	void toggleFog();
 private:
+	DynamicFog *m_fog;
 	Sky *pSky;
 	Tree *tree1;
 	std::string tree1FileName = "pine1";
@@ -31,7 +33,6 @@ private:
 	std::string forestFileName = "population.png";
 
 	float visualRange = 6.5f;
-	bool m_bFog = false;
 
 	float light_tmp = 0.1;
 	GLfloat lmodel_ambient[4] = { light_tmp, light_tmp, light_tmp, 1.0 };

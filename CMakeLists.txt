@@ -15,6 +15,8 @@ set(SOURCES 	src/main.cpp
 		src/sky.cpp
 		src/forest.cpp
 		src/environment.cpp
+		src/rain.cpp
+		src/dynamicFog.cpp
 
 		include/buildSnowman.hpp
 		include/model.hpp
@@ -25,7 +27,9 @@ set(SOURCES 	src/main.cpp
 		include/camera.hpp
 		include/sky.hpp
 		include/forest.hpp
-		include/environment.hpp)
+		include/environment.hpp
+		include/rain.hpp
+		include/dynamicFog.cpp)
 
 add_executable(House_in_the_Forest ${SOURCES})
 

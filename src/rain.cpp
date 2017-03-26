@@ -16,16 +16,19 @@ RainDrop::~RainDrop() {}
 
 void RainDrop::draw(vec3f& direction)
 {
-	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-	glColor3f(1.f, 1.f, 1.f);
-	glEnable(GL_COLOR_MATERIAL);
-	glBegin(GL_LINE_STRIP);	
-	glVertex3f(m_position[0], m_position[1], m_position[2]);
-	glVertex3f(m_position[0] - direction[0],
-		m_position[1] - direction[1],
-		m_position[2] - direction[2]);
-	glEnd();
-	glDisable(GL_COLOR_MATERIAL);
+	if (m_bVisible)
+	{
+		glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+		glColor3f(1.f, 1.f, 1.f);
+		glEnable(GL_COLOR_MATERIAL);
+		glBegin(GL_LINE_STRIP);	
+		glVertex3f(m_position[0], m_position[1], m_position[2]);
+		glVertex3f(m_position[0] - direction[0],
+			m_position[1] - direction[1],
+			m_position[2] - direction[2]);
+		glEnd();
+		glDisable(GL_COLOR_MATERIAL);
+	}
 }
 
 /*
@@ -78,8 +81,7 @@ void Rain::toggleRain()
 {
 	if (m_bRaining)
 	{
-		m_bRaining = false;
-		rearrangePositions();
+		m_bStopRaining = true;
 	}
 	else
 	{
@@ -113,15 +115,33 @@ void Rain::checkPosition(RainDrop& drop)
 	float terrainY = m_pHeightmap->getHeight(drop.m_position.x(), drop.m_position.z());
 	if (dropY < terrainY)
 	{
+		if (m_bStopRaining)
+		{
+			drop.m_bVisible = false;
+			m_iStoppedDrops++;
+			if (m_iStoppedDrops == m_iNumOfDrops)
+			{
+				stopRain();
+			}
+		}
 		drop.m_position[1] = terrainY + m_fRainMaxHeight;
 	}
+}
+
+void Rain::stopRain()
+{
+	m_bRaining = false;
+	m_bStopRaining = false;
+	m_iStoppedDrops = 0;
+	rearrangePositions();
 }
 
 void Rain::rearrangePositions()
 {
 	for (auto &drop : m_vRaindrops)
 	{
-		drop.m_position[1] *= 5;
+		//drop.m_position[1] *= 5;
 		drop.m_position[1] += 30;
+		drop.m_bVisible = true;
 	}
 }

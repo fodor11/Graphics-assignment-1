@@ -17,6 +17,7 @@ public:
 private:
 	vec3f m_position;
 	float m_fDropLength = 0.5f;
+	bool m_bVisible = true;
 };
 
 class Rain
@@ -37,6 +38,7 @@ public:
 private:
 	/// defines if it is raining or not
 	bool m_bRaining = false;
+	bool m_bStopRaining = false;
 	int m_iNumOfDrops = 500;
 	float m_fRainSpeed = 0.5f;
 	float m_fDropLength = 0.5f;
@@ -50,6 +52,8 @@ private:
 	float m_fRainMaxHeight = 2 * m_fRainSquareSize;
 
 	void checkPosition(RainDrop& drop);
+	int m_iStoppedDrops = 0;
+	void stopRain();
 	/// rearranges drops, so that they are higher above the ground and more distributed,
 	/// making the next rain starting smoother
 	void rearrangePositions();

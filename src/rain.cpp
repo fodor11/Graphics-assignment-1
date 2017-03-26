@@ -40,14 +40,18 @@ Rain::Rain(Camera * camera, HeightMapLoader* heightmap)
 	std::random_device rand_dev;
 	std::mt19937 generator(rand_dev());
 	std::uniform_real_distribution<float> distrX(m_pCamera->getX() - m_fRainSquareSize, m_pCamera->getX() + m_fRainSquareSize);
-	std::chi_squared_distribution<float> distrY(2);
 	std::uniform_real_distribution<float> distrZ(m_pCamera->getZ() - m_fRainSquareSize, m_pCamera->getZ() + m_fRainSquareSize);
+	std::chi_squared_distribution<float> distrY(2);
 	m_vRaindrops.reserve(m_iNumOfDrops);
 	for (int i = 0; i < m_iNumOfDrops; i++)
 	{
 		float x = distrX(generator);
-		float y = distrY(generator)*25.0f + 15.f;
 		float z = distrZ(generator);
+		// the drops may start from a lot higher altitude,
+		// making them more distributed 
+		// + altitude makes the rain starting smoother
+		float y = distrY(generator)*25.0f + 30.f;
+		
 		vec3f position(x, y, z);
 		RainDrop rd(position);
 		m_vRaindrops.push_back(rd);
@@ -75,6 +79,7 @@ void Rain::toggleRain()
 	if (m_bRaining)
 	{
 		m_bRaining = false;
+		rearrangePositions();
 	}
 	else
 	{
@@ -112,3 +117,11 @@ void Rain::checkPosition(RainDrop& drop)
 	}
 }
 
+void Rain::rearrangePositions()
+{
+	for (auto &drop : m_vRaindrops)
+	{
+		drop.m_position[1] *= 5;
+		drop.m_position[1] += 30;
+	}
+}

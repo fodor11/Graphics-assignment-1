@@ -50,6 +50,9 @@ private:
 	float m_fRainMaxHeight = 2 * m_fRainSquareSize;
 
 	void checkPosition(RainDrop& drop);
+	/// rearranges drops, so that they are higher above the ground and more distributed,
+	/// making the next rain starting smoother
+	void rearrangePositions();
 
 	std::vector<RainDrop> m_vRaindrops;
 	Camera* m_pCamera;

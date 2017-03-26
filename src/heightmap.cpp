@@ -80,7 +80,7 @@ void HeightMapLoader::createDisplayList()
 			normal = getNormal((i + m_scale) / m_scale, j / m_scale);
 			glNormal3f(normal.x(), normal.y(), normal.z());
 			glVertex3f(i + m_scale,
-				getHeight((i + m_scale) / m_scale, j / m_scale)*m_maxHeight,
+				getUnitHeight((i + m_scale) / m_scale, j / m_scale)*m_maxHeight,
 				j);
 
 			color = getColor(i / m_scale, j / m_scale);
@@ -92,7 +92,7 @@ void HeightMapLoader::createDisplayList()
 			normal = getNormal(i / m_scale, j / m_scale);
 			glNormal3f(normal.x(), normal.y(), normal.z());
 			glVertex3f(i,
-				getHeight(i / m_scale, j / m_scale) * m_maxHeight,
+				getUnitHeight(i / m_scale, j / m_scale) * m_maxHeight,
 				j);
 
 			color = getColor((i + m_scale) / m_scale, (j + m_scale) / m_scale);
@@ -104,7 +104,7 @@ void HeightMapLoader::createDisplayList()
 			normal = getNormal((i + m_scale) / m_scale, (j + m_scale) / m_scale);
 			glNormal3f(normal.x(), normal.y(), normal.z());
 			glVertex3f(i + m_scale,
-				getHeight((i + m_scale) / m_scale, (j + m_scale) / m_scale) * m_maxHeight,
+				getUnitHeight((i + m_scale) / m_scale, (j + m_scale) / m_scale) * m_maxHeight,
 				j + m_scale);
 
 			color = getColor(i / m_scale, (j + m_scale) / m_scale);
@@ -116,7 +116,7 @@ void HeightMapLoader::createDisplayList()
 			normal = getNormal(i / m_scale, (j + m_scale) / m_scale);
 			glNormal3f(normal.x(), normal.y(), normal.z());
 			glVertex3f(i,
-				getHeight(i / m_scale, (j + m_scale) / m_scale) * m_maxHeight,
+				getUnitHeight(i / m_scale, (j + m_scale) / m_scale) * m_maxHeight,
 				j + m_scale);
 		}
 		glEnd();
@@ -190,15 +190,15 @@ void HeightMapLoader::calcVertexNormals()
 		{
 			vec3f& actualNormal = m_pVertexNormals[i*m_width + j];
 			actualNormal = vec3f(0, 0, 0);
-			p0 = vec3f(i, getHeight(i, j), j);
+			p0 = vec3f(i, getUnitHeight(i, j), j);
 			triangles = 0;
 			//second
 			if (existingCoord(i - 1, j))
 			{
 				if (existingCoord(i - 1, j + 1))
 				{
-					p1 = vec3f(i - 1, getHeight(i - 1, j), j);
-					p2 = vec3f(i - 1, getHeight(i - 1, j + 1), j + 1);
+					p1 = vec3f(i - 1, getUnitHeight(i - 1, j), j);
+					p2 = vec3f(i - 1, getUnitHeight(i - 1, j + 1), j + 1);
 					triangles++;
 					actualNormal += calcNormalFromPoints(p0, p1, p2);
 				}
@@ -206,15 +206,15 @@ void HeightMapLoader::calcVertexNormals()
 			//third - if 3rd exists, then 4th exists too
 			if (existingCoord(i - 1, j + 1))
 			{
-				p1 = vec3f(i - 1, getHeight(i - 1, j + 1), j + 1);
-				p2 = vec3f(i, getHeight(i, j + 1), j + 1);
+				p1 = vec3f(i - 1, getUnitHeight(i - 1, j + 1), j + 1);
+				p2 = vec3f(i, getUnitHeight(i, j + 1), j + 1);
 				triangles++;
 				actualNormal += calcNormalFromPoints(p0, p1, p2);
 				//check if 5th exists => p1=4th, p2=5th
 				if (existingCoord(i + 1, j))
 				{
-					p1 = vec3f(i, getHeight(i, j + 1), j + 1);
-					p2 = vec3f(i + 1, getHeight(i + 1, j), j);
+					p1 = vec3f(i, getUnitHeight(i, j + 1), j + 1);
+					p2 = vec3f(i + 1, getUnitHeight(i + 1, j), j);
 					triangles++;
 					actualNormal += calcNormalFromPoints(p0, p1, p2);
 				}
@@ -224,8 +224,8 @@ void HeightMapLoader::calcVertexNormals()
 			{
 				if (existingCoord(i + 1, j - 1))
 				{
-					p1 = vec3f(i + 1, getHeight(i + 1, j), j);
-					p2 = vec3f(i + 1, getHeight(i + 1, j - 1), j - 1);
+					p1 = vec3f(i + 1, getUnitHeight(i + 1, j), j);
+					p2 = vec3f(i + 1, getUnitHeight(i + 1, j - 1), j - 1);
 					triangles++;
 					actualNormal += calcNormalFromPoints(p0, p1, p2);
 				}
@@ -233,15 +233,15 @@ void HeightMapLoader::calcVertexNormals()
 			//sixth => if 6th exists, then 1st exists too
 			if (existingCoord(i + 1, j - 1))
 			{
-				p1 = vec3f(i + 1, getHeight(i + 1, j - 1), j - 1);
-				p2 = vec3f(i, getHeight(i, j - 1), j - 1);
+				p1 = vec3f(i + 1, getUnitHeight(i + 1, j - 1), j - 1);
+				p2 = vec3f(i, getUnitHeight(i, j - 1), j - 1);
 				triangles++;
 				actualNormal += calcNormalFromPoints(p0, p1, p2);
 				//check if 2nd exists => p1=1st p2=2nd
 				if (existingCoord(i - 1, j))
 				{
-					p1 = vec3f(i, getHeight(i, j - 1), j - 1);
-					p2 = vec3f(i - 1, getHeight(i - 1, j), j);
+					p1 = vec3f(i, getUnitHeight(i, j - 1), j - 1);
+					p2 = vec3f(i - 1, getUnitHeight(i - 1, j), j);
 					triangles++;
 					actualNormal += calcNormalFromPoints(p0, p1, p2);
 				}
@@ -299,7 +299,7 @@ float HeightMapLoader::linearInterpolation(float pointA, float pointB, float wei
 	float ret = pointA * weightA + pointB * weightB;
 	return ret;
 }
-float HeightMapLoader::getHeight(float x, float z)
+float HeightMapLoader::getUnitHeight(float x, float z)
 {
 	if (x < (m_width - 1) && z < (m_height - 1) && x >= 0 && z >= 0)
 	{
@@ -321,6 +321,11 @@ float HeightMapLoader::getHeight(float x, float z)
 	{
 		return 1.0f;
 	}
+}
+
+float HeightMapLoader::getHeight(float x, float z)
+{
+	return getUnitHeight(x, z) * m_maxHeight;
 }
 
 vec3f HeightMapLoader::getNormal(int x, int z) const

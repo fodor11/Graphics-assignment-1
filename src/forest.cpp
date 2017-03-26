@@ -33,17 +33,17 @@ void Forest::readPositions()
 			if (tmpVector == vec3f(1.f, 0.f, 0.f))
 			{
 				m_mPositions["tree1"].push_back(
-							vec3f(i, m_pHeightmap->getHeight(i, j) * maxHeight, j));
+							vec3f(i, m_pHeightmap->getUnitHeight(i, j) * maxHeight, j));
 			}
 			else if (tmpVector == vec3f(0.f, 1.f, 0.f))
 			{
 				m_mPositions["tree2"].push_back(
-					vec3f(i, m_pHeightmap->getHeight(i, j) * maxHeight, j));
+					vec3f(i, m_pHeightmap->getUnitHeight(i, j) * maxHeight, j));
 			}
 			else if (tmpVector == vec3f(0.f, 0.f, 1.f))
 			{
 				m_mPositions["tree3"].push_back(
-					vec3f(i, m_pHeightmap->getHeight(i, j) * maxHeight, j));
+					vec3f(i, m_pHeightmap->getUnitHeight(i, j) * maxHeight, j));
 			}
 		}
 	}

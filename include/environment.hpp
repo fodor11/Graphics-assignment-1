@@ -4,6 +4,7 @@
 #include "forest.hpp"
 #include "camera.hpp"
 #include "dynamicFog.hpp"
+#include "rain.hpp"
 
 class Environment
 {
@@ -22,6 +23,7 @@ public:
 	void toggleFog();
 private:
 	DynamicFog *m_fog;
+	Rain *rain;
 	Sky *pSky;
 	Tree *tree1;
 	std::string tree1FileName = "pine1";

@@ -1,16 +1,9 @@
-#ifndef _USE_MATH_DEFINES
-#define _USE_MATH_DEFINES
-#endif
-#include <math.h>
 #include "..\include\camera.hpp"
-
-Camera::Camera()
-{
-}
 
 Camera::Camera(HeightMapLoader* heightMap)
 {
-	m_fCurrTime = glutGet(GLUT_ELAPSED_TIME);
+	QueryPerformanceFrequency(&m_liFrequency);
+
 	m_pHeightMap = heightMap;
 	m_fCameraX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
 	m_fCameraZ = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
@@ -25,8 +18,7 @@ void Camera::updateCamera()
 	//set horizon (+change from radius to angle)
 	glRotatef(radianToAngle(m_fHorizonAngleRadian), 1, 0, 0);
 	
-	float maxHeight = m_pHeightMap->getMaxHeight();
-	m_fCameraY = m_pHeightMap->getHeight(m_fCameraX, m_fCameraZ) * maxHeight + m_fCameraHeight;
+	m_fCameraY = m_pHeightMap->getHeight(m_fCameraX, m_fCameraZ) + m_fCameraHeight;
 	//set the camera
 	gluLookAt(m_fCameraX, m_fCameraY, m_fCameraZ,                              //camera position
 		m_fCameraX + m_fDirectionX, m_fCameraY, m_fCameraZ + m_fDirectionZ,    //look at point
@@ -100,16 +92,27 @@ float Camera::getZ() const
 	return m_fCameraZ;
 }
 
+float Camera::getCameraHeight() const
+{
+	return m_fCameraHeight;
+}
+
 float Camera::getElapsedTime() const
 {
 	return m_fElapsedTime;
 }
 
+void Camera::startTimer()
+{
+	QueryPerformanceCounter(&m_liCurrTime);
+}
+
 void Camera::move()
 {
-	float prevTime = m_fElapsedTime;
-	// smoothes movement in case of unstable fps
-	m_fElapsedTime = (prevTime + calcElapsedTime()) * 0.5f;
+	//float prevTime = m_fElapsedTime;
+	//// smoothes movement in case of unstable fps
+	//m_fElapsedTime = (prevTime + calcElapsedTime()) * 0.5f;
+	m_fElapsedTime = calcElapsedTime();
 
 	if (m_bMoveForward)
 	{
@@ -140,8 +143,12 @@ float Camera::radianToAngle(float radian)
 
 float Camera::calcElapsedTime()
 {
-	float now = glutGet(GLUT_ELAPSED_TIME);
-	float elapsed = (now - m_fCurrTime) * 0.001f;
-	m_fCurrTime = now;
+	m_liPrevTime = m_liCurrTime;
+	QueryPerformanceCounter(&m_liCurrTime);
+	float elapsed = (m_liCurrTime.QuadPart - m_liPrevTime.QuadPart) * 100.f / m_liFrequency.QuadPart;
+	if (elapsed < 0.01)
+	{
+		std::cout << "elapsed time < 0.01" << std::endl;
+	}
 	return elapsed;
 }

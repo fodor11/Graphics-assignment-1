@@ -1,13 +1,19 @@
 #pragma once
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif
+#include <math.h>
 #include <iostream>
+#include <Windows.h>
 #include "heightmap.hpp"
 #include "model.hpp"
 
 class Camera
 {
 public:
-	Camera();
+	/// starts timer, gets heightmap, sets the middle of the map
 	Camera(HeightMapLoader* heightMap);
+	/// empty
 	~Camera();
 	/// moves the camera
 	void updateCamera();
@@ -31,17 +37,21 @@ public:
 	float getY() const;
 	/// returns the Z coordinate of the camera position
 	float getZ() const;
+	/// returns the height of the camera
+	float getCameraHeight() const;
 	/// returns elapsed time
 	float getElapsedTime() const;
+
+	void startTimer();
 private:
 	/// rotation in the Y axis
-	float m_fRotationAngleRadian = 0.0f;
+	float m_fRotationAngleRadian = -M_PI_2;
 	/// horizon angle in radian
-	float m_fHorizonAngleRadian = 0.0;
+	float m_fHorizonAngleRadian = 0.0f;
 
 	/// position of the camera
 	float m_fCameraX = 0.0f, 
-		  m_fCameraY = 0.0f, 
+		  m_fCameraY = 1.0f, 
 		  m_fCameraZ = 0.0f;
 	/// "height" of the camera
 	float m_fCameraHeight = 1.f;
@@ -50,10 +60,7 @@ private:
 		  m_fDirectionZ = -1.0f;
 	
 	/// speed of camera
-	float m_fSpeed = 5.f;
-
-	float m_fCurrTime = 0.f;
-	float m_fElapsedTime = 0.f;
+	float m_fSpeed = 0.05f;
 
 	/// movements
 	bool m_bMoveForward = false,
@@ -65,5 +72,8 @@ private:
 
 	void move();
 	float radianToAngle(float radian);
+
+	LARGE_INTEGER m_liPrevTime, m_liCurrTime, m_liFrequency;
+	float m_fElapsedTime = 0.0f;
 	float calcElapsedTime();
 };

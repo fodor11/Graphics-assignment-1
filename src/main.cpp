@@ -22,7 +22,7 @@ using namespace std;
 
 //Global variables
 //camera object
-Camera camera;
+Camera* camera;
 //environment
 Environment* environment;
 //mouse position
@@ -108,7 +108,7 @@ void display()
 	//reset transformations
 	glLoadIdentity();
 
-	camera.updateCamera();
+	camera->updateCamera();
 	glTranslatef(0.f, setHeight, 0.f);
 
 	float scale = heightMap->getScale();
@@ -121,7 +121,7 @@ void display()
 
 	//int midMapX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
 	//int midMapY = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
-	//drawAxis(midMapX, heightMap->getHeight(midMapX, midMapY) * maxHeight, midMapY);
+	//drawAxis(midMapX, heightMap->getUnitHeight(midMapX, midMapY) * maxHeight, midMapY);
 
 
 	printFps();
@@ -137,7 +137,7 @@ void display()
 
 	glFlush();
 	glutSwapBuffers();	
-	camera.resetMovements();
+	camera->resetMovements();
 }
 
 void reshape(GLsizei width, GLsizei height)
@@ -162,33 +162,11 @@ void motionHandler(int x, int y)
 {
 	//rotation around the Y axis
 	float rotX = (x - mouseX) / 200.0f;
-	camera.addRotationInRadian(rotX);
-	////done
-	//angle += rotX;
-	//lx = cos(angle);
-	//lz = sin(angle);
-	//if (angle > (PI * 2) || angle < -(PI * 2))
-	//{
-	//	angle = fmodf(angle, (PI * 2));
-	//}
-	////done
-
-	//cout << "angle: " << angle*(180 / PI) << endl;
+	camera->addRotationInRadian(rotX);
 
 	//changing horizon
 	float rotY = (y - mouseY)/200.f;
-	camera.changeHorizonInRadian(rotY);
-	////done
-	//horizonAngle += rotY;
-	//if (horizonAngle < -(PI / 2))
-	//{
-	//	horizonAngle = -(PI / 2);
-	//}
-	//if (horizonAngle > (PI / 2))
-	//{
-	//	horizonAngle = (PI / 2);
-	//}
-	////done
+	camera->changeHorizonInRadian(rotY);
 
 	//cout<< "horizonAngle2: " << horizonAngle*(180 / PI) << endl;
 	//update positions, dont let the cursor leave the window
@@ -219,16 +197,16 @@ void keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 'w':
-		camera.setForwardMovement();
+		camera->setForwardMovement();
 		break;
 	case 's':
-		camera.setBackwardMovement();
+		camera->setBackwardMovement();
 		break;
 	case 'd':
-		camera.setRightMovement();
+		camera->setRightMovement();
 		break;
 	case 'a':
-		camera.setLeftMovement();
+		camera->setLeftMovement();
 		break;
 	case ' ':
 		setHeight -= speed;
@@ -282,10 +260,10 @@ void initialize()
 	//Loadheightmap
 	heightMap = new HeightMapLoader("terrain6_256.png");
 	//init cam, sets the current time
-	camera = Camera(heightMap);
+	camera = new Camera(heightMap);
 	//set up environment
 	environment = new Environment();
-	environment->initialize(heightMap, &camera);
+	environment->initialize(heightMap, camera);
 
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_NORMALIZE);
@@ -309,6 +287,7 @@ void initialize()
 
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0);
+	camera->startTimer();
 }
 
 /**
@@ -327,6 +306,8 @@ int main(int argc, char* argv[])
 	cout << "Create window ..." << endl;
 	int window = glutCreateWindow("GLUT Window");
 	glutSetWindow(window);
+	// set mouseX and mouseY
+	mouseHandler(0, 0, midX, midY);
 	glutWarpPointer(midX, midY);
 	initialize();
 

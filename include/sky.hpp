@@ -18,7 +18,7 @@ private:
 
 	unsigned int m_uiMoonTextureId = 0;
 	GLUquadric *m_pMoonSphere;
-	float m_fMoonSpeed = 0.1f;
+	float m_fMoonSpeed = 0.001f;
 	float m_fMoonCurvePosition = 1.5f;
 	float m_fSemiAxleX = 300.f;
 	float m_fSemiAxleY = 200.f;

@@ -16,6 +16,9 @@ public:
 	~HeightMapLoader();
 	int getImageWidth() const;
 	int getImageHeight() const;
+	/// get the normalized height value [0,1]
+	float getUnitHeight(float x, float z);
+	/// returns the "true" height (unit height * max height)
 	float getHeight(float x, float z);
 	float getScale() const;
 	float getMaxHeight() const;

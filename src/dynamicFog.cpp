@@ -10,7 +10,6 @@ DynamicFog::DynamicFog(Camera * cameraPointer)
 	glFogf(GL_FOG_START, 1.0f);
 	glFogf(GL_FOG_END, 150.0f);
 	glHint(GL_FOG_HINT, GL_NICEST);
-	//glHint(GL_FOG_HINT, GL_DONT_CARE);
 }
 
 DynamicFog::~DynamicFog(){}
@@ -39,12 +38,12 @@ void DynamicFog::toggleFog()
 
 void DynamicFog::changingFogDensity(bool on)
 {
-	if (on && m_fFogDensity <= fogMaxDensity)
+	if (on && m_fFogDensity <= m_fFogMaxDensity)
 	{
 		m_fFogDensity += m_fFogDynamicSpeed * m_pCamera->getElapsedTime();
 		glFogf(GL_FOG_DENSITY, m_fFogDensity);
 	}
-	else if (on && m_fFogDensity > fogMaxDensity)
+	else if (on && m_fFogDensity > m_fFogMaxDensity)
 	{
 		m_bFogFading = false;
 	}

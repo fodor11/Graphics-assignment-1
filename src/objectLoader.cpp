@@ -1,4 +1,4 @@
-#include "..\include\objectLoader.hpp"
+#include "../include/objectLoader.hpp"
 
 //read .mtl
 void ObjectLoader::readMtlFile(std::string filename)

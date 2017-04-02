@@ -4,7 +4,12 @@
 #endif
 #include <math.h>
 #include <iostream>
+#ifndef __linux__
 #include <Windows.h>
+#endif
+#ifdef __linux__
+#define LARGE_INTEGER long
+#endif
 #include "heightmap.hpp"
 #include "model.hpp"
 

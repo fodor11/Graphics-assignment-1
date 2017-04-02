@@ -1,5 +1,5 @@
 #pragma once
-#include <gl\glut.h>
+#include <gl/glut.h>
 #include <iostream>
 #include <string>
 #include <fstream>

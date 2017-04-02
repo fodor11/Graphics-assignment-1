@@ -2,6 +2,10 @@
 #include "../include/heightmap.hpp"
 #include <iostream>
 
+#ifdef __linux__
+#include <cmath>
+#endif
+
 void HeightMapLoader::getHeightValues()
 {
 	m_pHeightValues = new float[m_width * m_height];

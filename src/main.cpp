@@ -3,6 +3,8 @@
 #include <math.h>
 #include <memory.h>
 #include <string>
+#include <sstream>
+
 #include "../include/buildSnowman.hpp"
 #include "../include/texture.hpp"
 #include "../include/object.hpp"
@@ -62,12 +64,12 @@ void drawAxis(float nullX, float nullY, float nullZ)
 
 HeightMapLoader *heightMap;
 
-int time = 0;
+int g_time = 0;
 double calcFps() 
 {
 	int now = glutGet(GLUT_ELAPSED_TIME);
-	double fps = 1 / ((now - time) / 1000.0);
-	time = now;
+	double fps = 1 / ((now - g_time) / 1000.0);
+	g_time = now;
 	return fps;
 }
 
@@ -84,8 +86,11 @@ void printFps()
 
 	glColor3f(1.f, 0.f, 0.f);
 	glRasterPos2f(0.6f, -0.9f);
-	std::string fpsString = "fps: ";
-	fpsString += std::to_string(calcFps());
+
+    std::stringstream fpsStream;
+    fpsStream << "fps: " << calcFps();
+    std::string fpsString = fpsStream.str();
+
 	//cout << "called" << fpsString << fpsMeter() << endl;
 	for (int i = 0; i < strlen(fpsString.c_str()); i++)
 	{

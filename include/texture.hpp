@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
-#include <gl\glut.h>
-#include <soil\SOIL.h>
+#include <gl/glut.h>
+#include <soil/SOIL.h>
 #include <string.h>
 #include "model.hpp"
 

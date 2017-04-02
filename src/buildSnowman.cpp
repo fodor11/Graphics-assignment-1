@@ -1,5 +1,5 @@
 #include "../include/buildSnowman.hpp"
-#include <gl\glut.h>
+#include <gl/glut.h>
 
 
 Snowman::Snowman(std::string name)

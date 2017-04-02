@@ -1,8 +1,10 @@
-#include "..\include\camera.hpp"
+#include "../include/camera.hpp"
 
 Camera::Camera(HeightMapLoader* heightMap)
 {
+#ifndef __linux__
 	QueryPerformanceFrequency(&m_liFrequency);
+#endif
 
 	m_pHeightMap = heightMap;
 	m_fCameraX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
@@ -104,7 +106,9 @@ float Camera::getElapsedTime() const
 
 void Camera::startTimer()
 {
+#ifndef __linux__
 	QueryPerformanceCounter(&m_liCurrTime);
+#endif
 }
 
 void Camera::move()
@@ -143,9 +147,16 @@ float Camera::radianToAngle(float radian)
 
 float Camera::calcElapsedTime()
 {
+#ifndef __linux__
 	m_liPrevTime = m_liCurrTime;
 	QueryPerformanceCounter(&m_liCurrTime);
 	float elapsed = (m_liCurrTime.QuadPart - m_liPrevTime.QuadPart) * 100.f / m_liFrequency.QuadPart;
+#else
+    static int prevTime = glutGet(GLUT_ELAPSED_TIME);
+    int currentTime = glutGet(GLUT_ELAPSED_TIME);
+    float elapsed = (float)(currentTime - prevTime) / 1000.0;
+    prevTime = currentTime;
+#endif
 	if (elapsed < 0.01)
 	{
 		std::cout << "elapsed time < 0.01" << std::endl;

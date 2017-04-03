@@ -77,6 +77,12 @@ void Rain::update()
 	}
 }
 
+void Rain::changeDirectionBy(vec3f & values)
+{
+	m_direction = values;
+	m_direction.normalize();
+}
+
 void Rain::toggleRain()
 {
 	if (m_bRaining)

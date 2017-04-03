@@ -42,7 +42,7 @@ private:
 	int m_iNumOfDrops = 500;
 	float m_fRainSpeed = 0.5f;
 	float m_fDropLength = 0.5f;
-	vec3f m_direction = vec3f(0.f, 1.f, 0.f) * m_fDropLength;
+	vec3f m_direction = vec3f(0.f, 1.0f, 0.f) * m_fDropLength;
 	
 	/// side of the range square will be 2 x m_fRainSquareSize 
 	///    |

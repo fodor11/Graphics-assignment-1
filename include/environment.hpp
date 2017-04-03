@@ -9,7 +9,9 @@
 class Environment
 {
 public:
+	/// empty
 	Environment();
+	/// empty
 	~Environment();
 	/// reads and prepares objects and textures (sky, forest, trees, terrain)
 	void initialize(HeightMapLoader* heightMap, Camera* camera);
@@ -22,25 +24,25 @@ public:
 	/// toggles fog on and off
 	void toggleFog();
 private:
-	DynamicFog *m_fog;
-	Rain *rain;
-	Sky *pSky;
-	Tree *tree1;
-	std::string tree1FileName = "pine1";
-	Tree *tree2;
-	std::string tree2FileName = "pine2";
-	Tree *tree3;
-	std::string tree3FileName = "pine3";
-	Forest* forest;
-	std::string forestFileName = "population.png";
+	DynamicFog *m_pFog;
+	Rain *m_pRain;
+	Sky *m_pSky;
+	Tree *m_pTree1;
+	std::string m_sTree1FileName = "pine1";
+	Tree *m_pTree2;
+	std::string m_sTree2FileName = "pine2";
+	Tree *m_pTree3;
+	std::string m_sTree3FileName = "pine3";
+	Forest* m_pForest;
+	std::string m_sForestFileName = "population.png";
 
-	float visualRange = 6.5f;
+	float m_fVisualRange = 6.5f;
 
-	float light_tmp = 0.1;
-	GLfloat lmodel_ambient[4] = { light_tmp, light_tmp, light_tmp, 1.0 };
+	float m_fOverallLightness = 0.1;
+	GLfloat m_faLightModelAmbient[4] = { m_fOverallLightness, m_fOverallLightness, m_fOverallLightness, 1.0 };
 
 	/// pointers to foreign objects
-	HeightMapLoader* heightmap;
+	HeightMapLoader* m_pHeightmap;
 	Camera* m_pCamera;
 
 	float calcDistanceToCamera(vec3f position);

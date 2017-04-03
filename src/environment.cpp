@@ -6,6 +6,13 @@ Environment::Environment()
 
 Environment::~Environment()
 {
+	delete m_pFog;
+	delete m_pForest;
+	delete m_pRain;
+	delete m_pTree1;
+	delete m_pTree2;
+	delete m_pTree3;
+	delete m_pSky;
 }
 
 void Environment::initialize(HeightMapLoader* heightMap, Camera* camera)

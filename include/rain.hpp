@@ -10,7 +10,7 @@ class RainDrop
 public:
 	/// sets the position
 	RainDrop(vec3f& position);
-	/// does nothing
+	/// empty
 	~RainDrop();
 	/// draws the line considering the given direction
 	void draw(vec3f& direction);

@@ -4,7 +4,9 @@
 
 class Sky {
 public:
+	/// empty
 	Sky();
+	/// empty
 	~Sky();
 	/// init spheres, light
 	void initialize();

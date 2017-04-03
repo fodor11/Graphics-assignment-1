@@ -278,9 +278,11 @@ void HeightMapLoader::drawTerrain() const
 
 HeightMapLoader::~HeightMapLoader()
 {
-	delete  m_pImage;
-	delete  m_pVertexNormals;
+	delete[]  m_pVertexNormals;
 	delete  m_pHeightValues;
+	delete m_pMoisture;
+	delete[] m_pColors;
+	std::cout << "heightmap destroyed" << std::endl;
 }
 
 int HeightMapLoader::getImageWidth() const

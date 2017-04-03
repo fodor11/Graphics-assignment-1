@@ -7,7 +7,7 @@ class Tree
 public:
 	/// loads the object and the billboard displaylist
 	Tree(string fileName);
-	/// does nothing
+	/// empty
 	~Tree();
 	void drawTree();
 	void drawBillBoard();
@@ -30,5 +30,4 @@ private:
 
 	GLuint m_billBoardDispList;
 	void loadBillBoardDispList();
-
 };

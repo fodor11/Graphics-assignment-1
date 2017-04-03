@@ -5,6 +5,10 @@ Forest::Forest(std::string fileName)
 	m_sFilename = fileName;
 }
 
+Forest::~Forest()
+{
+}
+
 void Forest::initialize(HeightMapLoader * heightmap)
 {
 	m_pHeightmap = heightmap;

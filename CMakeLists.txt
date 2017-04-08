@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 2.8)
 project(House_in_the_Forest)
 
-set (CMAKE_CXX_STANDARD 11)
+# Before CMake 3.1
+add_compile_options(-std=c++11)
+
+# After CMake 3.1
+# set(CMAKE_CXX_STANDARD 11)
+# set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)

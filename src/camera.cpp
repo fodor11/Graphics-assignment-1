@@ -104,6 +104,11 @@ float Camera::getElapsedTime() const
 	return m_fElapsedTime;
 }
 
+void Camera::setObstacles(std::map<std::string, std::vector<vec3f>>* obstaclePositions)
+{
+	m_pObstaclePositions = obstaclePositions;
+}
+
 void Camera::startTimer()
 {
 #ifndef __linux__
@@ -117,6 +122,8 @@ void Camera::move()
 	//// smoothes movement in case of unstable fps
 	//m_fElapsedTime = (prevTime + calcElapsedTime()) * 0.5f;
 	m_fElapsedTime = calcElapsedTime();
+	m_fPrevCameraX = m_fCameraX;
+	m_fPrevCameraZ = m_fCameraZ;
 
 	if (m_bMoveForward)
 	{
@@ -138,6 +145,33 @@ void Camera::move()
 		m_fCameraX -= cos(m_fRotationAngleRadian + M_PI_2) * m_fSpeed * m_fElapsedTime;
 		m_fCameraZ -= sin(m_fRotationAngleRadian + M_PI_2) * m_fSpeed * m_fElapsedTime;
 	}
+	if (checkCollisions())
+	{
+		m_fCameraX = m_fPrevCameraX;
+		m_fCameraZ = m_fPrevCameraZ;
+	}
+}
+float Camera::calc2Ddistance(float point1x, float point1y, float point2x, float point2y)
+{
+	return sqrtf( powf(point2x - point1x, 2.0f) + powf(point2y - point1y, 2.0f));
+}
+bool Camera::checkCollisions()
+{
+	if (m_pObstaclePositions != nullptr)
+	{
+		for (auto obstacle = m_pObstaclePositions->begin(); obstacle != m_pObstaclePositions->end(); obstacle++)
+		{
+			std::vector<vec3f>&  positions = obstacle->second;
+			for (vec3f& position : positions)
+			{
+				if (calc2Ddistance(m_fCameraX, m_fCameraZ, position.x(), position.z()) < m_fObstacleRadius)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 float Camera::radianToAngle(float radian)

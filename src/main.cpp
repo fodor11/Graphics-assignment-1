@@ -195,6 +195,12 @@ void motionHandler(int x, int y)
 	}
 }
 
+void cleanUp() {	
+	//camera->~Camera();
+	//environment->~Environment();
+	heightMap->~HeightMapLoader();
+}
+
 //speed of camera
 float speed = 1.f;
 void keyboard(unsigned char key, int x, int y)
@@ -234,10 +240,12 @@ void keyboard(unsigned char key, int x, int y)
 		environment->toggleMoonlight();
 		break;
 	case 27:
+		cleanUp();
 		exit(0);
 		break;
 	}
 }
+
 void specialFunctionKeys(int key, int x, int y)
 {
 	if (key == 1)

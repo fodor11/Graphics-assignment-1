@@ -7,7 +7,7 @@ class DynamicFog
 public:
 	/// set up fog functions
 	DynamicFog(Camera * cameraPointer);
-	/// does nothing
+	/// empty
 	~DynamicFog();
 	/// changes density if needed
 	void updateFog();

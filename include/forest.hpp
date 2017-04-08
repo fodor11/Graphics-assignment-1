@@ -10,7 +10,7 @@ class Forest {
 public:
 	/// sets the population file name
 	Forest(std::string forestPopulationFileName);
-	/// does nothing yet
+	/// empty
 	~Forest();
 	/// reads the population file and stores the positions
 	void initialize(HeightMapLoader* heightmap);

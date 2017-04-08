@@ -1,17 +1,22 @@
 #pragma once
+
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
-#include <math.h>
-#include <iostream>
-#ifndef __linux__
-#include <Windows.h>
-#endif
-#ifdef __linux__
-#define LARGE_INTEGER long
-#endif
+
 #include "heightmap.hpp"
 #include "model.hpp"
+
+#include <cmath>
+#include <iostream>
+#include <map>
+#include <vector>
+
+#ifdef __linux__
+#define LARGE_INTEGER long
+#else
+#include <Windows.h>
+#endif
 
 class Camera
 {
@@ -46,7 +51,9 @@ public:
 	float getCameraHeight() const;
 	/// returns elapsed time
 	float getElapsedTime() const;
-
+	/// sets the list of obstacles' positions
+	void setObstacles(std::map<std::string, std::vector<vec3f>>* obstaclePositions);
+	///starts the timer
 	void startTimer();
 private:
 	/// rotation in the Y axis
@@ -63,7 +70,19 @@ private:
 	/// camera's direction (vector)
 	float m_fDirectionX = 0.0f,
 		  m_fDirectionZ = -1.0f;
-	
+
+	/// previous positions (used in collision detection)
+	float m_fPrevCameraX = 0.0f,
+		m_fPrevCameraZ = 0.0f;
+	/// unavailable positions
+	std::map<std::string, std::vector<vec3f>>* m_pObstaclePositions = nullptr;
+	/// radius of the obstacles
+	float m_fObstacleRadius = 0.15f;
+	/// returns true if the current position is inside an obstacle's radius
+	bool checkCollisions();
+	/// calculates distance between 2 2D points
+	float calc2Ddistance(float point1x, float point1y, float point2x, float point2y);
+
 	/// speed of camera
 	float m_fSpeed = 0.05f;
 

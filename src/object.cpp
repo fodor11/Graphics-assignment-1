@@ -31,10 +31,10 @@ void Tree::loadObjectDispList()
 	ObjectLoader* objLoader = new ObjectLoader();
 	objLoader->loadObjFile(m_fileName + ".obj");
 
-	std::vector<vec3f>& vertices = objLoader->getVertices();
-	std::vector<vec3f>& vertNormals = objLoader->getVertexNormals();
-	std::vector<std::pair<float, float>>& textureCoords = objLoader->getTextureCoords();
-	std::map<std::string, std::vector<Face>>& faceLists = objLoader->getFaceLists();
+	const std::vector<vec3f>& vertices = objLoader->getVertices();
+	const std::vector<vec3f>& vertNormals = objLoader->getVertexNormals();
+	const std::vector<std::pair<float, float>>& textureCoords = objLoader->getTextureCoords();
+	const std::map<std::string, std::vector<Face>>& faceLists = objLoader->getFaceLists();
 
 	getHeight(objLoader->getBoundingBox());
 
@@ -68,7 +68,7 @@ void Tree::loadObjectDispList()
 			GLuint textureId = loadTexture(map->first);
 			glBindTexture(GL_TEXTURE_2D, textureId);
 			//std::cout << "bound texture: " << map->first << endl;
-			std::vector<Face>& curr_faceList = map->second;
+			const std::vector<Face>& curr_faceList = map->second;
 			for (int i = 0; i < curr_faceList.size(); i++)
 			{
 				face = curr_faceList[i];

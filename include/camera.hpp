@@ -1,15 +1,22 @@
 #pragma once
+
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
-#include <math.h>
-#include <iostream>
-#include <map>
-#include <vector>
-#include <Windows.h>
+
 #include "heightmap.hpp"
 #include "model.hpp"
 
+#include <cmath>
+#include <iostream>
+#include <map>
+#include <vector>
+
+#ifdef __linux__
+#define LARGE_INTEGER long
+#else
+#include <Windows.h>
+#endif
 
 class Camera
 {

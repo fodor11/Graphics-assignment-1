@@ -75,34 +75,6 @@ void Sky::loadTextures()
 	delete txtrLoaderObj;
 }
 
-/// Temporary
-void drawAxisB(float nullX, float nullY, float nullZ)
-{
-	glPushMatrix();
-	glDisable(GL_TEXTURE_2D);
-	glTranslatef(nullX, nullY, nullZ);
-	glLineWidth(10.0f);
-	glBegin(GL_LINES);
-	//x axis RED
-	GLfloat diffuse_and_ambient[] = { 1,0,0,1 };
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse_and_ambient);
-	glColor3f(1.0f, 0.f, 0.f);  glVertex3f(0.f, 0.f, 0.f);	glVertex3f(3.0f, 0.f, 0.f);
-	//y axis GREEN
-	diffuse_and_ambient[0] = 0;
-	diffuse_and_ambient[1] = 1;
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse_and_ambient);
-	glColor3f(0.0f, 1.0f, 0.f);	glVertex3f(0.f, 0.f, 0.f);	glVertex3f(0.0f, 3.0f, 0.f);
-	//z axis BLUE
-	diffuse_and_ambient[1] = 0;
-	diffuse_and_ambient[2] = 1;
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse_and_ambient);
-	glColor3f(0.0f, 0.f, 1.f);	glVertex3f(0.f, 0.f, 0.f);	glVertex3f(0.0f, 0.f, 3.f);
-	glEnd();
-	glEnable(GL_TEXTURE_2D);
-	glPopMatrix();
-}
-/// Temporary
-
 void Sky::drawMoon()
 {
 	glBindTexture(GL_TEXTURE_2D, m_uiMoonTextureId);

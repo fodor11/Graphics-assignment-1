@@ -6,6 +6,7 @@
 
 #include "heightmap.hpp"
 #include "model.hpp"
+#include <math.h>
 
 #include <cmath>
 #include <iostream>

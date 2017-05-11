@@ -14,10 +14,6 @@
 #include "../include/forest.hpp"
 #include "../include/environment.hpp"
 
-
-#define PI 3.14159265
-#define RadToAngle 180/PI
-
 // DEBUG
 #include <iostream>
 using namespace std;
@@ -97,6 +93,7 @@ void printFps()
 		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, fpsString[i]);
 	}
 
+	glDisable(GL_COLOR_MATERIAL);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_LIGHTING);
 	glMatrixMode(GL_PROJECTION);
@@ -106,6 +103,7 @@ void printFps()
 }
 
 GLenum error;
+GLuint menuTexture;
 void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -113,32 +111,48 @@ void display()
 	//reset transformations
 	glLoadIdentity();
 
-	camera->updateCamera();
-	glTranslatef(0.f, setHeight, 0.f);
+	if (!menu)
+	{
+		camera->updateCamera();
+		glTranslatef(0.f, setHeight, 0.f);
 
-	float scale = heightMap->getScale();
-	float maxHeight = heightMap->getMaxHeight();
+		float scale = heightMap->getScale();
+		float maxHeight = heightMap->getMaxHeight();
 
-	//Draw ground
-	heightMap->drawTerrain();
+		//Draw ground
+		heightMap->drawTerrain();
 
-	environment->update();
+		environment->update();
 
-	//int midMapX = (heightMap->getImageWidth()*heightMap->getScale()) / 2;
-	//int midMapY = (heightMap->getImageHeight()*heightMap->getScale()) / 2;
-	//drawAxis(midMapX, heightMap->getUnitHeight(midMapX, midMapY) * maxHeight, midMapY);
+		printFps();
+	}
+	else
+	{
+		glBindTexture(GL_TEXTURE_2D, menuTexture);
+		glColor3f(1.f, 1.f, 1.f);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);
+		glVertex3f(0, 0, 0);
 
+		glTexCoord2f(1, 0);
+		glVertex3f(midX * 2, 0, 0);
 
-	printFps();
+		glTexCoord2f(1, 1);
+		glVertex3f(midX * 2, midY * 2, 0);
+
+		glTexCoord2f(0, 1);
+		glVertex3f(0, midY * 2, 0);
+		glEnd();
+	}
+	
 
 	//check errors	
-	error = glGetError();
-	while (error != GL_NO_ERROR)
-	{
-		std::cout << error << std::endl;
-		error = glGetError();
-	}
-	//std::cout << "error check done" << std::endl;
+	//error = glGetError();
+	//while (error != GL_NO_ERROR)
+	//{
+	//	std::cout << error << std::endl;
+	//	error = glGetError();
+	//}
 
 	glFlush();
 	glutSwapBuffers();	
@@ -252,13 +266,23 @@ void specialFunctionKeys(int key, int x, int y)
 	{
 		if (menu)
 		{
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			gluPerspective(70.0, (GLdouble)(midX * 2) / (GLdouble)(midY * 2), 0.01, 10000.0);
 			menu = false;
 			cout << "exit" << endl;
+			glMatrixMode(GL_MODELVIEW);
+			glEnable(GL_LIGHTING);
 		}
 		else
 		{
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			gluOrtho2D(0, midX * 2, midY * 2, 0);
 			menu = true;
 			cout << "enter" << endl;
+			glMatrixMode(GL_MODELVIEW);
+			glDisable(GL_LIGHTING);
 		}
 	}
 }
@@ -277,6 +301,11 @@ void initialize()
 	//set up environment
 	environment = new Environment();
 	environment->initialize(heightMap, camera);
+
+	TextureLoader *txtrldr = new TextureLoader();
+	txtrldr->loadMipMappedTexture("help.png");
+	menuTexture = txtrldr->textureID();
+	txtrldr->~TextureLoader();
 
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_NORMALIZE);
@@ -301,6 +330,9 @@ void initialize()
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0);
 	camera->startTimer();
+
+	glDisable(GL_COLOR_MATERIAL);
+	glDisable(GL_COLOR);
 }
 
 /**
